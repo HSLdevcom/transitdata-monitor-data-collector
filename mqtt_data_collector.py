@@ -52,6 +52,7 @@ def main():
         threads[i].join()
 
     send_mqtt_msg_count_into_azure(topic_data_collection)
+    print(f'Mqtt metrics sent: {datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}')
 
 def listen_topic(topic_data_collection, address, topic, port):
     """

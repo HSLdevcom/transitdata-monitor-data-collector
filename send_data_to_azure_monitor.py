@@ -10,7 +10,7 @@ load_dotenv()
 TENANT_ID=os.getenv('TENANT_ID')
 CLIENT_ID=os.getenv('CLIENT_ID')
 CLIENT_SECRET=os.getenv('CLIENT_SECRET')
-PULSAR_PROXY_RESOURCE_ID=os.getenv('PULSAR_PROXY_RESOURCE_ID')
+MONITOR_DATA_COLLECTOR_RESOURCE_ID=os.getenv('MONITOR_DATA_COLLECTOR_RESOURCE_ID')
 ACCESS_TOKEN_PATH = os.getenv('ACCESS_TOKEN_PATH')
 
 ### SECRETS / ENV VARIABLES ###
@@ -27,8 +27,7 @@ def send_custom_metrics_request(custom_metric_json, attempts_remaining):
     existing_access_token = f.read()
     f.close()
 
-    pulsar_proxy_resource_id = PULSAR_PROXY_RESOURCE_ID
-    request_url = f'https://westeurope.monitoring.azure.com/{pulsar_proxy_resource_id}/metrics'
+    request_url = f'https://westeurope.monitoring.azure.com/{MONITOR_DATA_COLLECTOR_RESOURCE_ID}/metrics'
     headers = {'Content-type': 'application/json', 'Authorization': f'Bearer {existing_access_token}'}
     response = requests.post(request_url, data=custom_metric_json, headers=headers)
 
