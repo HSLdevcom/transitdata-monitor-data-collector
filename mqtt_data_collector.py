@@ -9,8 +9,10 @@ from send_data_to_azure_monitor import send_custom_metrics_request
 
 load_dotenv()
 
+IS_DEBUG = os.getenv('IS_DEBUG')
+
 # How long to listen to the topics until we send data to Azure. Should be 60 in production
-MONITOR_PERIOD_IN_SECONDS = 60
+MONITOR_PERIOD_IN_SECONDS = 60 if IS_DEBUG == False else 3
 
 def main():
     """
@@ -51,8 +53,11 @@ def main():
     for i in range(len(threads)):
         threads[i].join()
 
-    send_mqtt_msg_count_into_azure(topic_data_collection)
-    print(f'Mqtt metrics sent: {datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}')
+    if IS_DEBUG == False:
+        send_mqtt_msg_count_into_azure(topic_data_collection)
+        print(f'Mqtt metrics sent: {datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}')
+    else:
+        print(topic_data_collection)
 
 def listen_topic(topic_data_collection, address, topic, port):
     """
@@ -63,8 +68,14 @@ def listen_topic(topic_data_collection, address, topic, port):
     client = mqtt.Client()
     client.on_connect = on_connect_callback(topic)
     client.on_message = on_message_callback(topic_data_collection, topic)
+    # Enable debugging if needed
+    # client.on_log = on_log_callback
+    # client.on_disconnect = on_disconnect_callback
 
-    client.connect(address, int(port), MONITOR_PERIOD_IN_SECONDS)
+    try:
+        client.connect(address, int(port), MONITOR_PERIOD_IN_SECONDS)
+    except:
+        print(f'Error: could not connect to {address} {topic} {port}')
 
     # Call that processes network traffic, dispatches callbacks and
     # handles reconnecting.
@@ -92,6 +103,14 @@ def on_message_callback(topic_data_collection, topic):
         # print(msg.topic+" "+str(msg.payload))
 
     return on_message
+
+# Enable debugging if needed
+# def on_log_callback(client, userdata, level, buf):
+    # print(buf)
+
+# Enable debugging if needed
+# def on_disconnect_callback(client, userdata, rc):
+#     print("Disconnected")
 
 def send_mqtt_msg_count_into_azure(topic_data_collection):
     """
