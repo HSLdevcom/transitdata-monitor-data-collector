@@ -12,7 +12,7 @@ load_dotenv()
 IS_DEBUG = os.getenv('IS_DEBUG')
 
 # How long to listen to the topics until we send data to Azure. Should be 60 in production
-MONITOR_PERIOD_IN_SECONDS = 60 if IS_DEBUG == False else 3
+MONITOR_PERIOD_IN_SECONDS = 60 if IS_DEBUG == "False" else 3
 
 def main():
     """
@@ -53,11 +53,11 @@ def main():
     for i in range(len(threads)):
         threads[i].join()
 
-    if IS_DEBUG == False:
+    if IS_DEBUG == "True":
+        print(topic_data_collection)
+    else:
         send_mqtt_msg_count_into_azure(topic_data_collection)
         print(f'Mqtt metrics sent: {datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}')
-    else:
-        print(topic_data_collection)
 
 def listen_topic(topic_data_collection, address, topic, port):
     """
