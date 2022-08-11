@@ -150,21 +150,16 @@ def send_mqtt_msg_count_into_azure(topic_data_collection):
 
     send_custom_metrics_request(custom_metric_json, attempts_remaining=3)
 
-def replace_last_char_if_equals(topic_name, char_to_replace, char_to_use):
-    last_char = topic_name[-1]
-    if (last_char == char_to_replace):
-        topic_name = topic_name.rstrip(topic_name[-1])
-        topic_name = f"{topic_name}{char_to_use}"
-    return topic_name
-
-
 def get_series_array(topic_data_collection):
     series_array = []
     for topic_name in topic_data_collection:
         topic_msg_count = topic_data_collection[topic_name]
 
-        # Azure doesn't seem to like # in the end of a dimValue, replace it with *
-        parsed_topic_name = replace_last_char_if_equals(topic_name, "#", "*")
+        # Azure doesn't seem to like # in a dimValue, replace it with *
+        parsed_topic_name = topic_name.replace("#", "*")
+        # Azure doesn't seem to like + in a dimValue, replace it with ^
+        parsed_topic_name = parsed_topic_name.replace("+", "^")
+
         dimValue = {
             "dimValues": [
                 parsed_topic_name
