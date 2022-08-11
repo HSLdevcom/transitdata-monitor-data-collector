@@ -133,7 +133,7 @@ def send_mqtt_msg_count_into_azure(topic_data_collection):
         "data": {
             "baseData": {
                 # Metric (name): name of the metric
-                "metric": "msgCount",
+                "metric": "Msg Count",
                 # Namespace: Categorize or group similar metrics together
                 "namespace": "MQTT",
                 # Dimension (dimNames): Metric has a single dimension
