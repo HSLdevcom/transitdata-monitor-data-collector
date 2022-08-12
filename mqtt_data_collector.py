@@ -40,8 +40,10 @@ def main():
             topic_port = topic_data_array[2]
             if (topic_address is None or topic_name is None or topic_port is None):
                 raise Exception(f"Some required topic data was missing, topic_address: {topic_address}, topic_name: {topic_name}, topic_port: {topic_port}")
-            topic_data_collection[topic_name] = 0
-            listen_topic(topic_data_collection, topic_address, topic_name, topic_port)
+            topic_data_collection_key = f"{topic_address}:{topic_name}:{topic_port}"
+            topic_data_collection[topic_data_collection_key] = 0
+
+            listen_topic(topic_data_collection, topic_data_collection_key, topic_address, topic_name, topic_port)
         t = Thread(target=listen_topic_thread, args=(topic_data_string,))
         threads.append(t)
 
@@ -59,7 +61,7 @@ def main():
         send_mqtt_msg_count_into_azure(topic_data_collection)
         print(f'Mqtt metrics sent: {datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}')
 
-def listen_topic(topic_data_collection, address, topic, port):
+def listen_topic(topic_data_collection, topic_data_collection_key, address, topic, port):
     """
         Documentation for paho.mqtt.python: https://github.com/eclipse/paho.mqtt.python
     """
@@ -67,7 +69,7 @@ def listen_topic(topic_data_collection, address, topic, port):
 
     client = mqtt.Client()
     client.on_connect = on_connect_callback(topic)
-    client.on_message = on_message_callback(topic_data_collection, topic)
+    client.on_message = on_message_callback(topic_data_collection, topic_data_collection_key)
     # Enable debugging if needed
     # client.on_log = on_log_callback
     # client.on_disconnect = on_disconnect_callback
@@ -96,10 +98,10 @@ def on_connect_callback(topic):
     return on_connect
 
 # # The callback for when a PUBLISH message is received from the server.
-def on_message_callback(topic_data_collection, topic):
+def on_message_callback(topic_data_collection, topic_data_collection_key):
 
     def on_message(client, userdata, msg):
-        topic_data_collection[topic] += 1
+        topic_data_collection[topic_data_collection_key] += 1
         # print(msg.topic+" "+str(msg.payload))
 
     return on_message
@@ -152,17 +154,17 @@ def send_mqtt_msg_count_into_azure(topic_data_collection):
 
 def get_series_array(topic_data_collection):
     series_array = []
-    for topic_name in topic_data_collection:
-        topic_msg_count = topic_data_collection[topic_name]
+    for key in topic_data_collection:
+        topic_msg_count = topic_data_collection[key]
 
         # Azure doesn't seem to like # in a dimValue, replace it with *
-        parsed_topic_name = topic_name.replace("#", "*")
+        parsed_key = key.replace("#", "*")
         # Azure doesn't seem to like + in a dimValue, replace it with ^
-        parsed_topic_name = parsed_topic_name.replace("+", "^")
+        parsed_key = parsed_key.replace("+", "^")
 
         dimValue = {
             "dimValues": [
-                parsed_topic_name
+                parsed_key
             ],
             "sum": topic_msg_count,
             "count": 1
