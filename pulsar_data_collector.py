@@ -7,12 +7,9 @@ from send_data_to_azure_monitor import send_custom_metrics_request
 
 load_dotenv()
 
-### SECRETS / ENV VARIABLES ###
-
+IS_DEBUG = os.getenv('IS_DEBUG')
 ADMIN_URL=os.getenv('ADMIN_URL')
 NAMESPACE=os.getenv('NAMESPACE')
-
-### SECRETS / ENV VARIABLES ###
 
 METRIC_MSG_RATE_IN = "Msg Rate In"
 METRIC_MSG_RATE_OUT = "Msg Rate Out"
@@ -120,7 +117,10 @@ def send_pulsar_topic_metric_into_azure(
 
     custom_metric_json = json.dumps(custom_metric_object)
 
-    send_custom_metrics_request(custom_metric_json, 3)
+    if IS_DEBUG == "True":
+        print(custom_metric_json)
+    else:
+        send_custom_metrics_request(custom_metric_json, 3)
 
 def get_series_array(topic_data_collection, topic_data_metric_name, topic_names_to_collect):
     series_array = []
