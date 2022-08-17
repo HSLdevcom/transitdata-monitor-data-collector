@@ -7,7 +7,7 @@ from send_data_to_azure_monitor import send_custom_metrics_request
 
 load_dotenv()
 
-IS_DEBUG = os.getenv('IS_DEBUG')
+IS_DEBUG = os.getenv('IS_DEBUG') == "True"
 ADMIN_URL=os.getenv('ADMIN_URL')
 NAMESPACE=os.getenv('NAMESPACE')
 
@@ -117,7 +117,7 @@ def send_pulsar_topic_metric_into_azure(
 
     custom_metric_json = json.dumps(custom_metric_object)
 
-    if IS_DEBUG == "True":
+    if IS_DEBUG:
         print(custom_metric_json)
     else:
         send_custom_metrics_request(custom_metric_json, 3)
