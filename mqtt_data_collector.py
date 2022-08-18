@@ -1,6 +1,5 @@
 import paho.mqtt.client as mqtt
 import time
-import math
 import json
 from datetime import datetime
 from threading import Thread
@@ -159,7 +158,7 @@ def get_series_array(topic_data_collection):
         topic_msg_count = topic_data_collection[key]
 
         # We want message count to be message per second
-        topic_msg_count = math.ceil(topic_msg_count/MONITOR_PERIOD_IN_SECONDS)
+        topic_msg_count = round(topic_msg_count/MONITOR_PERIOD_IN_SECONDS, 2)
 
         # Azure doesn't seem to like # in a dimValue, replace it with *
         parsed_key = key.replace("#", "*")
