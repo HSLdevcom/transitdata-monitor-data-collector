@@ -58,7 +58,7 @@ def main():
     if IS_DEBUG:
         print(topic_data_collection)
     else:
-        # send_mqtt_msg_count_into_azure(topic_data_collection)
+        send_mqtt_msg_count_into_azure(topic_data_collection)
         print(f'Mqtt metrics sent: {datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}')
 
 def listen_topic(topic_data_collection, topic_data_collection_key, address, topic, port):
