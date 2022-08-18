@@ -33,18 +33,6 @@ Now you can run:
 python3 mqtt_data_collector.py
 ```
 
-## Send custom metrics manually to Azure Monitor
-
-If you need to send new custom metrics to Azure Monitor,
-you can firstly test sending by editing
-`custom_metric_example.json` and running:
-```
-curl -X POST https://westeurope.monitoring.azure.com/<resourceId>/metrics -H "Content-Type: application/json" -H "Authorization: Bearer <AccessToken>" -d @custom_metric_example.json
-```
-Notes:
-- Edit what you need in `custom_metric_example.json` (at least the timestamp)
-- You need a fresh `access token` for this command, you can get it by running `main.py` locally (see access_token.txt file)
-
 ## Deployment
 
 Deployment is done with ansible on the pulsar proxy server. In order to update this app, create a new release in github: https://github.com/HSLdevcom/transitdata-monitor-data-collector/releases/new and then run the pulsar proxy playbook.
