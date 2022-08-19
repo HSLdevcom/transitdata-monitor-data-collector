@@ -157,8 +157,12 @@ def get_series_array(topic_data_collection):
     for key in topic_data_collection:
         topic_msg_count = topic_data_collection[key]
 
-        # We want message count to be message per second
+        # We want message count to be messages per second
         topic_msg_count = round(topic_msg_count/MONITOR_PERIOD_IN_SECONDS, 2)
+
+        # If over 10, round to whole number
+        if topic_msg_count > 10:
+            topic_msg_count = round(topic_msg_count)
 
         # Azure doesn't seem to like # in a dimValue, replace it with *
         parsed_key = key.replace("#", "*")

@@ -126,16 +126,18 @@ def get_series_array(topic_data_collection, topic_data_metric_name, topic_names_
     series_array = []
     for topic_name in topic_names_to_collect:
         topic_msg_count = topic_data_collection[topic_name][topic_data_metric_name]
-        # Special case: we want to multiply stop-cancellation messages by 10
-        # so that the data would show more likely in Azure's charts
-        if topic_name == "internal-messages/stop-cancellation":
-            topic_msg_count = topic_msg_count * 10
+
+        topic_msg_count = round(topic_msg_count, 2)
+
+        # If over 10, round to whole number
+        if topic_msg_count > 10:
+            topic_msg_count = round(topic_msg_count)
 
         dimValue = {
             "dimValues": [
                 topic_name
             ],
-            "sum": round(topic_msg_count),
+            "sum": topic_msg_count,
             "count": 1
         }
         series_array.append(dimValue)
