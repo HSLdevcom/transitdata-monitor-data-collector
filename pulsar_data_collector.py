@@ -43,19 +43,23 @@ TOPIC_NAMES_TO_COLLECT_STORAGE_SIZE = [
 
 
 def main():
-    topic_data_collection = {}
+    # Structure:
+    # key: topic_name: <string>
+    # value: topic_data: <object>
+    topic_data_map = {}
+
     # Merge all topic name lists as a single array
     collect_data_from_topics_list = list(set(TOPIC_NAMES_TO_COLLECT_MSG_RATE_IN + TOPIC_NAMES_TO_COLLECT_MSG_RATE_OUT + TOPIC_NAMES_TO_COLLECT_STORAGE_SIZE))
 
     for topic_name in collect_data_from_topics_list:
         topic_data = collect_data_from_topic(topic_name)
         if topic_data != None:
-            topic_data_collection[topic_name] = topic_data
+            topic_data_map[topic_name] = topic_data
 
-    if bool(topic_data_collection):
-        send_metrics_into_azure(topic_data_collection)
+    if bool(topic_data_map):
+        send_metrics_into_azure(topic_data_map)
     else:
-        print(f'Not sending metrics, topic_data_collection was empty.')
+        print(f'Not sending metrics, topic_data_map was empty.')
 
 def collect_data_from_topic(topic_name):
     pulsar_url = f'{ADMIN_URL}/admin/v2/persistent/{NAMESPACE}/{topic_name}/stats'
@@ -70,16 +74,16 @@ def collect_data_from_topic(topic_name):
     except Exception as e:
         print(f'Failed to send a POST request to {pulsar_url}. Is pulsar running and accepting requests?')
 
-def send_metrics_into_azure(topic_data_collection):
-    send_pulsar_topic_metric_into_azure(METRIC_MSG_RATE_IN, "msgRateIn", topic_data_collection, TOPIC_NAMES_TO_COLLECT_MSG_RATE_IN)
-    send_pulsar_topic_metric_into_azure(METRIC_MSG_RATE_OUT, "msgRateOut", topic_data_collection, TOPIC_NAMES_TO_COLLECT_MSG_RATE_OUT)
-    send_pulsar_topic_metric_into_azure(METRIC_STORAGE_SIZE, "storageSize", topic_data_collection, TOPIC_NAMES_TO_COLLECT_STORAGE_SIZE)
+def send_metrics_into_azure(topic_data_map):
+    send_pulsar_topic_metric_into_azure(METRIC_MSG_RATE_IN, "msgRateIn", topic_data_map, TOPIC_NAMES_TO_COLLECT_MSG_RATE_IN)
+    send_pulsar_topic_metric_into_azure(METRIC_MSG_RATE_OUT, "msgRateOut", topic_data_map, TOPIC_NAMES_TO_COLLECT_MSG_RATE_OUT)
+    send_pulsar_topic_metric_into_azure(METRIC_STORAGE_SIZE, "storageSize", topic_data_map, TOPIC_NAMES_TO_COLLECT_STORAGE_SIZE)
     print(f'Pulsar metrics sent: {datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}')
 
 def send_pulsar_topic_metric_into_azure(
         log_analytics_metric_name,
         topic_data_metric_name,
-        topic_data_collection,
+        topic_data_map,
         topic_names_to_collect
 ):
     """
@@ -94,7 +98,7 @@ def send_pulsar_topic_metric_into_azure(
     # Azure wants time in UTC ISO 8601 format
     time = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S")
 
-    series_array = get_series_array(topic_data_collection, topic_data_metric_name, topic_names_to_collect)
+    series_array = get_series_array(topic_data_map, topic_data_metric_name, topic_names_to_collect)
 
     custom_metric_object = {
         # Time (timestamp): Date and time at which the metric is measured or collected
@@ -122,10 +126,10 @@ def send_pulsar_topic_metric_into_azure(
     else:
         send_custom_metrics_request(custom_metric_json, 3)
 
-def get_series_array(topic_data_collection, topic_data_metric_name, topic_names_to_collect):
+def get_series_array(topic_data_map, topic_data_metric_name, topic_names_to_collect):
     series_array = []
     for topic_name in topic_names_to_collect:
-        topic_msg_count = topic_data_collection[topic_name][topic_data_metric_name]
+        topic_msg_count = topic_data_map[topic_name][topic_data_metric_name]
 
         topic_msg_count = round(topic_msg_count, 2)
 
