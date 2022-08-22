@@ -123,7 +123,8 @@ def main():
         if time.time() > time_end:
             topic_data_map = {}
             for topic in topic_list:
-                topic_data_map[topic.topic_name] = topic.msg_count
+                topic_data_map_key = f"{topic.topic_address}:{topic.topic_name}:{topic.topic_port}"
+                topic_data_map[topic_data_map_key] = topic.msg_count
                 topic.msg_count = 0
 
             if IS_DEBUG:
