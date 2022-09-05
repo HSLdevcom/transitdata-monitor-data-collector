@@ -114,14 +114,22 @@ def main():
 
         sleep_time = time_end - time.time()
         print(sleep_time)
-        # When listen period has passed, send data to Azure
-        time.sleep(sleep_time)
+
+        # Only sleep if sleep_time is positive. This can happen if sending data to Azure took longer than MONITOR_PERIOD_IN_SECONDS
+        if sleep_time > 0:
+            # Sleep while listen period is going, after that we send data to Azure
+            time.sleep(sleep_time)
+
+        # Set time_end as MONITOR_PERIOD_IN_SECONDS in the future
         time_end = time.time() + MONITOR_PERIOD_IN_SECONDS
         topic_data_map = {}
+
+        # Save message counters into topic_data_map and reset them in each topic
         for topic in topic_list:
             topic_data_map_key = f"{topic.topic_address}:{topic.topic_name}:{topic.topic_port}"
             topic_data_map[topic_data_map_key] = topic.msg_count
             topic.msg_count = 0
+
         send_mqtt_msg_count_to_azure(topic_data_map)
 
 def send_mqtt_msg_count_to_azure(topic_data_map):
