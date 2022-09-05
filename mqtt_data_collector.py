@@ -110,7 +110,12 @@ def main():
         for topic in topic_list:
             if topic.is_running == False:
                 print(f"Topic {topic.topic_name} was not running, starting it.")
-                topic.listen_topic()
+
+                # Run listen_topic in a thread because we don't want to wait e.g. client.connect() etc.
+                # If we didn't use threads here, one connection being stuck could cause long
+                # timeout for sending data to Azure.
+                t = Thread(target=topic.listen_topic)
+                t.start()
 
         sleep_time = time_end - time.time()
         print(sleep_time)
