@@ -6,6 +6,8 @@ from threading import Thread
 import os
 from dotenv import load_dotenv
 from send_data_to_azure_monitor import send_custom_metrics_request
+import signal
+from contextlib import contextmanager
 
 load_dotenv()
 
@@ -126,6 +128,9 @@ def main():
             # Sleep while listen period is going, after that we send data to Azure
             time.sleep(sleep_time)
 
+        # TODO: remove this logging later when not needed
+        print("After sleep.")
+
         # Set time_end as MONITOR_PERIOD_IN_SECONDS in the future
         time_end = time.time() + MONITOR_PERIOD_IN_SECONDS
         topic_data_map = {}
@@ -136,7 +141,30 @@ def main():
             topic_data_map[topic_data_map_key] = topic.msg_count
             topic.msg_count = 0
 
-        send_mqtt_msg_count_to_azure(topic_data_map)
+        try:
+            with time_limit(10):
+                send_mqtt_msg_count_to_azure(topic_data_map)
+        except TimeoutException as e:
+            print("Sending data to Azure timed out.")
+        # TODO: remove this logging later when not needed
+        print("Sent mqtt msg count to Azure.")
+
+class TimeoutException(Exception): pass
+
+@contextmanager
+def time_limit(seconds):
+    """
+    Puts a timer to a function call so that it won't hang forever and stop execution of the script.
+    Taken from https://stackoverflow.com/a/601168/4282381
+    """
+    def signal_handler(signum, frame):
+        raise TimeoutException("Timed out!")
+    signal.signal(signal.SIGALRM, signal_handler)
+    signal.alarm(seconds)
+    try:
+        yield
+    finally:
+        signal.alarm(0)
 
 def send_mqtt_msg_count_to_azure(topic_data_map):
     """
