@@ -16,9 +16,15 @@ ACCESS_TOKEN_PATH = os.getenv('ACCESS_TOKEN_PATH')
 ### SECRETS / ENV VARIABLES ###
 
 def send_custom_metrics_request(custom_metric_json, attempts_remaining):
+    """
+    Sends custom metrics request to Azure. Tries to send as many times as given attempts_remaining.
+    When sending is successful, returns True, otherwise returns False
+    """
+
     # Exit if number of attempts reaches zero.
     if attempts_remaining == 0:
-        return
+        return False
+
     attempts_remaining = attempts_remaining - 1
 
     make_sure_access_token_file_exists()
@@ -29,11 +35,11 @@ def send_custom_metrics_request(custom_metric_json, attempts_remaining):
 
     request_url = f'https://westeurope.monitoring.azure.com/{MONITOR_DATA_COLLECTOR_RESOURCE_ID}/metrics'
     headers = {'Content-type': 'application/json', 'Authorization': f'Bearer {existing_access_token}'}
-    response = requests.post(request_url, data=custom_metric_json, headers=headers)
+    response = requests.post(request_url, data=custom_metric_json, headers=headers, timeout=10)
 
     # Return if response is successful
     if response.status_code == 200:
-        return
+        return True
 
     # Try catch because json.loads(response.text) might not be available
     try:
@@ -41,15 +47,18 @@ def send_custom_metrics_request(custom_metric_json, attempts_remaining):
         if response_dict['Error']['Code'] == 'TokenExpired':
             print("Currently stored access token has expired, getting a new access token.")
             request_new_access_token_and_write_it_on_disk()
-            send_custom_metrics_request(custom_metric_json, attempts_remaining)
+            return send_custom_metrics_request(custom_metric_json, attempts_remaining)
         elif response_dict['Error']['Code'] == 'InvalidToken':
             print("Currently stored access token is invalid, getting a new access token.")
             request_new_access_token_and_write_it_on_disk()
-            send_custom_metrics_request(custom_metric_json, attempts_remaining)
+            return send_custom_metrics_request(custom_metric_json, attempts_remaining)
         else:
             print(f'Request failed for an unknown reason, response: {response_dict}.')
     except Exception as e:
         print(f'Request failed for an unknown reason, response: {response}.')
+
+    print("Returning False as sending data to Azure was not successful.")
+    return False
 
 def make_sure_access_token_file_exists():
     try:

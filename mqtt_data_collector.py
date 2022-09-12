@@ -141,30 +141,8 @@ def main():
             topic_data_map[topic_data_map_key] = topic.msg_count
             topic.msg_count = 0
 
-        try:
-            with time_limit(10):
-                send_mqtt_msg_count_to_azure(topic_data_map)
-        except TimeoutException as e:
-            print("Sending data to Azure timed out.")
-        # TODO: remove this logging later when not needed
-        print("Sent mqtt msg count to Azure.")
-
-class TimeoutException(Exception): pass
-
-@contextmanager
-def time_limit(seconds):
-    """
-    Puts a timer to a function call so that it won't hang forever and stop execution of the script.
-    Taken from https://stackoverflow.com/a/601168/4282381
-    """
-    def signal_handler(signum, frame):
-        raise TimeoutException("Timed out!")
-    signal.signal(signal.SIGALRM, signal_handler)
-    signal.alarm(seconds)
-    try:
-        yield
-    finally:
-        signal.alarm(0)
+        t = Thread(target=send_mqtt_msg_count_to_azure, args=(topic_data_map,))
+        t.start()
 
 def send_mqtt_msg_count_to_azure(topic_data_map):
     """
@@ -177,13 +155,13 @@ def send_mqtt_msg_count_to_azure(topic_data_map):
     """
 
     # Azure wants time in UTC ISO 8601 format
-    time = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S")
+    time_str = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S")
 
     series_array = get_series_array(topic_data_map)
 
     custom_metric_object = {
         # Time (timestamp): Date and time at which the metric is measured or collected
-        "time": time,
+        "time": time_str,
         "data": {
             "baseData": {
                 # Metric (name): name of the metric
@@ -205,8 +183,21 @@ def send_mqtt_msg_count_to_azure(topic_data_map):
     if IS_DEBUG:
         print(custom_metric_json)
     else:
-        send_custom_metrics_request(custom_metric_json, attempts_remaining=3)
-        print(f"Mqtt metrics sent: {datetime.now().strftime('%Y-%m-%dT%H:%M:%S')}")
+        # Try sending data to Azure multiple times, wait between attempts
+        is_ok = send_custom_metrics_request(custom_metric_json=custom_metric_json, attempts_remaining=3)
+        if is_ok == False:
+            print("Sending data to Azure failed, trying again in 5 minutes.")
+            time.sleep(300) # Wait 5 minutes before the next attempt
+            is_ok = send_custom_metrics_request(custom_metric_json=custom_metric_json, attempts_remaining=3)
+            if is_ok == False:
+                print("Sending data to Azure failed, trying again in 10 minutes.")
+                time.sleep(600) # Wait 10 minutes before the next attempt
+                is_ok = send_custom_metrics_request(custom_metric_json=custom_metric_json, attempts_remaining=3)
+
+        if is_ok:
+            print(f"Mqtt metrics sent: {datetime.now().strftime('%Y-%m-%dT%H:%M:%S')}")
+        else:
+            print("Failed to send metrics to Azure.")
 
 def get_series_array(topic_data_map):
     series_array = []
