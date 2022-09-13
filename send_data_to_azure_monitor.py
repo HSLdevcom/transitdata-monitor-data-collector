@@ -35,7 +35,7 @@ def send_custom_metrics_request(custom_metric_json, attempts_remaining):
 
     request_url = f'https://westeurope.monitoring.azure.com/{MONITOR_DATA_COLLECTOR_RESOURCE_ID}/metrics'
     headers = {'Content-type': 'application/json', 'Authorization': f'Bearer {existing_access_token}'}
-    response = requests.post(request_url, data=custom_metric_json, headers=headers, timeout=10)
+    response = requests.post(request_url, data=custom_metric_json, headers=headers, timeout=60)
 
     # Return if response is successful
     if response.status_code == 200:
