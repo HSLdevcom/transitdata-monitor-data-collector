@@ -38,7 +38,8 @@ TOPIC_NAMES_TO_COLLECT_MSG_RATE_OUT = [
 ]
 
 TOPIC_NAMES_TO_COLLECT_STORAGE_SIZE = [
-    "hfp/v2"
+    "hfp/v2",
+    "gtfs-rt/feedmessage-vehicleposition"
 ]
 
 

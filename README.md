@@ -10,6 +10,8 @@ Have `.env` file at the project directory containing all of the secret values (y
 
 To run `pulsar_data_collector.py`, you need to have a tunnel open to pulsar_dev_proxy so that `ADMIN_URL` env variable points to pulsar admin's port.
 
+Also make sure that NAMESPACE value is correct in .env
+
 and then run either:
 ```
 python3 pulsar_data_collector.py
