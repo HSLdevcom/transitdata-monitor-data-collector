@@ -13,7 +13,7 @@ load_dotenv()
 
 # MQTT keep alive interval
 # This needs to be small enough to detect if the connection is down so that message rate will be calculated correctly
-MQTT_KEEP_ALIVE_SECS = 1
+MQTT_KEEP_ALIVE_SECS = 5
 
 IS_DEBUG = os.getenv('IS_DEBUG') == "True"
 
@@ -100,7 +100,7 @@ class Topic:
             elapsed_time = self.measuring_stopped_at - self.measuring_started_at
 
             # If data was collected for too short period, we can't accurately calculate the message rate
-            if elapsed_time < 10*MQTT_KEEP_ALIVE_SECS:
+            if elapsed_time < min(25, 10*MQTT_KEEP_ALIVE_SECS):
                 # Return None if elapsed_time is too small to calculate accurate result
                 return None
 
