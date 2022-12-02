@@ -211,6 +211,9 @@ def send_mqtt_msg_count_to_azure(topic_data_map):
     time_str = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S")
 
     series_array = get_series_array(topic_data_map)
+    if not series_array:
+        print("No data to send to Azure")
+        return
 
     custom_metric_object = {
         # Time (timestamp): Date and time at which the metric is measured or collected
