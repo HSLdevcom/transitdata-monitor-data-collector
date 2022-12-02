@@ -161,10 +161,10 @@ def main():
     for topic in topic_list:
         topic.listen_topic()
 
-    time_end = time.time() + MONITOR_PERIOD_IN_SECONDS
+    time_end = time.perf_counter() + MONITOR_PERIOD_IN_SECONDS
     # Keep listening to topics forever
     while True:
-        sleep_time = time_end - time.time()
+        sleep_time = time_end - time.perf_counter()
         print(f"Sleeping for {sleep_time} secs")
 
         # Only sleep if sleep_time is positive. This can happen if sending data to Azure took longer than MONITOR_PERIOD_IN_SECONDS
@@ -176,7 +176,7 @@ def main():
         print("After sleep.")
 
         # Set time_end as MONITOR_PERIOD_IN_SECONDS in the future
-        time_end = time.time() + MONITOR_PERIOD_IN_SECONDS
+        time_end = time.perf_counter() + MONITOR_PERIOD_IN_SECONDS
         topic_data_map = {}
 
         # Save message counters into topic_data_map and reset them in each topic
