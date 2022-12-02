@@ -79,7 +79,7 @@ class Topic:
         else:
             print(f"Error on connecting {client}, is our IP whitelisted for the topic?")
 
-    # Enable debugging if needed
+    # Called when MQTT is disconnected
     def _on_disconnect_callback(self, client, userdata, rc):
         print(f"Disconnected from {self.topic_address}, rc: {rc}")
         self.measuring_stopped_at = time.perf_counter()
@@ -101,10 +101,11 @@ class Topic:
 
             # If data was collected for too short period, we can't accurately calculate the message rate
             if elapsed_time < 10*MQTT_KEEP_ALIVE_SECS:
+                # Return None if elapsed_time is too small to calculate accurate result
                 return None
 
             """
-                Adjust elapsed_time to account the time it took to detect that the connection was down.
+                Adjust elapsed_time to account for the time it took to detect that the connection was down.
                 This should take roughly 2 times the duration of MQTT keep alive interval.
                 This adjustment can cause the message rate to be slightly inflated, but this is less of a problem than too small message rate, which would cause unnecessary alerts.
             """
@@ -112,9 +113,8 @@ class Topic:
         else:
             elapsed_time = time.perf_counter() - self.measuring_started_at
 
-        print(f"started: {self.measuring_started_at}, stopped: {self.measuring_started_at + elapsed_time}")
-
         if IS_DEBUG:
+            print(f"started: {self.measuring_started_at}, stopped: {self.measuring_started_at + elapsed_time}")
             print(f"Elapsed time {elapsed_time}, messages: {self.msg_count}")
 
         msg_per_second = self.msg_count / elapsed_time
@@ -122,12 +122,11 @@ class Topic:
         self.measuring_started_at = time.perf_counter()
         self.measuring_stopped_at = None
 
-        # Return None if elapsed_time is too small to calculate accurate result
         return msg_per_second
 
     # Enable debugging if needed
-    def _on_log_callback(self, client, userdata, level, buf):
-        print(buf)
+    # def _on_log_callback(self, client, userdata, level, buf):
+        # print(buf)
 
 def main():
     """
@@ -173,7 +172,7 @@ def main():
             time.sleep(sleep_time)
 
         # TODO: remove this logging later when not needed
-        print("After sleep.")
+        # print("After sleep.")
 
         # Set time_end as MONITOR_PERIOD_IN_SECONDS in the future
         time_end = time.perf_counter() + MONITOR_PERIOD_IN_SECONDS
