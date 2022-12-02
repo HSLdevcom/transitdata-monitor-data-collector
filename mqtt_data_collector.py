@@ -21,6 +21,7 @@ IS_DEBUG = os.getenv('IS_DEBUG') == "True"
 MONITOR_PERIOD_IN_SECONDS = 60 if IS_DEBUG == False else 20
 
 class Topic:
+    is_starting = False # True while connecting to the broker, False when connected or disconnected
     is_running = False
     msg_count = 0
 
@@ -32,6 +33,9 @@ class Topic:
         self.topic_name = topic_name
         self.topic_port = topic_port
 
+    def get_broker_address(self):
+        return f"{self.topic_address}:{self.topic_port}"
+
     def print_status(self):
         print(f"[Status] {self.topic_name}: msg_count: {self.msg_count}, is_running: {self.is_running}")
 
@@ -39,7 +43,11 @@ class Topic:
         """
             Documentation for paho.mqtt.python: https://github.com/eclipse/paho.mqtt.python
         """
-        self.is_running = True
+        if is_starting:
+            print(f"MQTT client is already connecting to {self.get_broker_address()}")
+            return
+
+        self.is_starting = True
 
         self.measuring_started_at = None
         self.measuring_stopped_at = None
@@ -50,26 +58,21 @@ class Topic:
         client.on_message = self._on_message_callback
         client.on_disconnect = self._on_disconnect_callback
 
-        try:
-            # Enable debugging if needed
-            #client.on_log = self._on_log_callback
+        # Enable debugging if needed
+        #client.on_log = self._on_log_callback
 
-            client.connect_async(self.topic_address, int(self.topic_port), MQTT_KEEP_ALIVE_SECS)
+        client.connect_async(self.topic_address, int(self.topic_port), MQTT_KEEP_ALIVE_SECS)
 
-            print(f"Connecting to MQTT broker at {self.topic_address}:{self.topic_port}")
-            # Starts thread that processes network traffic and dispatches callbacks
-            client.loop_start()
-
-        except Exception as e:
-            print(f"Error on topic {self.topic_name} {self.topic_address} {self.topic_port}: {e}")
-            self.measuring_stopped_at = time.perf_counter()
-            client.disconnect()
-            self.is_running = False
+        print(f"Connecting to MQTT broker at {self.get_broker_address()}")
+        # Starts thread that processes network traffic and dispatches callbacks
+        client.loop_start()
 
     # The callback for when the client receives a CONNACK response from the server.
     def _on_connect_callback(self, client, userdata, flags, rc):
-        print(f"Connected to MQTT broker at {self.topic_address}:{self.topic_port}")
+        print(f"Connected to MQTT broker at {self.get_broker_address()}")
+        self.is_starting = False
         if rc == 0:
+            self.is_running = True
             client.subscribe(self.topic_name)
             self.measuring_started_at = time.perf_counter()
             self.measuring_stopped_at = None
@@ -90,7 +93,7 @@ class Topic:
 
     def get_msg_count(self):
         if self.measuring_started_at == None:
-            print(f"No data was measured for {self.topic_address}:{self.topic_port} on topic {self.topic_name}. Maybe the client was not connected?")
+            print(f"No data was measured for {self.get_broker_address()} on topic {self.topic_name}. Maybe the client was not connected?")
             return None
 
         if self.measuring_stopped_at != None:
