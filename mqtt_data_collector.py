@@ -43,7 +43,7 @@ class Topic:
         """
             Documentation for paho.mqtt.python: https://github.com/eclipse/paho.mqtt.python
         """
-        if is_starting:
+        if self.is_starting:
             print(f"MQTT client is already connecting to {self.get_broker_address()}")
             return
 
