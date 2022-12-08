@@ -35,6 +35,14 @@ Now you can run:
 python3 mqtt_data_collector.py
 ```
 
+### Run GTFS-RT data collector
+
+Add list of GTFS-RT URLs to an environment variable named `GTFSRT_URLS` and run:
+
+```bash
+python3 gtfsrt_data_collector.py
+```
+
 ## Deployment
 
 Deployment is done with ansible on the pulsar proxy server. In order to update this app, create a new release in github: https://github.com/HSLdevcom/transitdata-monitor-data-collector/releases/new and then run the pulsar proxy playbook.
