@@ -1,0 +1,31 @@
+name: Create and deploy Docker image
+
+on: [push, pull_request]
+
+jobs:
+  build-develop-docker-image:
+    runs-on: ubuntu-latest
+    # Run only on develop branch
+    if: github.ref == 'refs/heads/develop'
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build and publish develop Docker image
+        uses: elgohr/Publish-Docker-Github-Action@v5
+        with:
+          name: hsldevcom/transitdata-monitor-data-collector
+          username: ${{ secrets.TRANSITDATA_DOCKERHUB_USER }}
+          password: ${{ secrets.TRANSITDATA_DOCKERHUB_TOKEN }}
+          tags: develop
+  build-release-docker-image:
+    runs-on: ubuntu-latest
+    # Run only for tagged commits
+    if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build and publish release Docker image
+        uses: elgohr/Publish-Docker-Github-Action@v5
+        with:
+          name: hsldevcom/transitdata-monitor-data-collector
+          username: ${{ secrets.TRANSITDATA_DOCKERHUB_USER }}
+          password: ${{ secrets.TRANSITDATA_DOCKERHUB_TOKEN }}
+          tag_semver: true

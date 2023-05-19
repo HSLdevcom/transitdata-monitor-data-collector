@@ -2,3 +2,5 @@
 access_token.txt
 .idea
 __pycache__
+venv
+.DS_Store
