@@ -46,37 +46,3 @@ python3 gtfsrt_data_collector.py
 ## Deployment
 
 Deployment is done with ansible on the pulsar proxy server. In order to update this app, create a new release in github: https://github.com/HSLdevcom/transitdata-monitor-data-collector/releases/new and then run the pulsar proxy playbook.
-
-## Run on server
-
-Have `.env` file at the project directory containing all of the secret values (you can get secrets from a pulsar-proxy 
-VM from pulsar-dev resource group) and list of topics.
-
-When you have modified the `.env` file, a `monitor-data-collector` service such as `mqttdatacollector` must be restarted.
-
-## Troubleshooting
-
-If Azure Shared dashboard diagrams `transitdata-topic-prod` and/or `transitdata-topic-dev` are not updating (i.e. there 
-are dashed lines in the diagrams or the diagrams are showing zero value all the time), you can check log file 
-`/var/log/pulsar-data-collector.log` on servers `pulsar-prod-monitor-data-collector` and `pulsar-dev-monitor-data-collector`.
-
-If there are error messages like this in the log files, it probably means that new secrets should be created in Azure 
-applications `hsl-pulsar-prod-monitoring-sp` and `hsl-pulsar-dev-monitoring-sp`:
-```
-Pulsar metrics sent: 2024-01-03T08:02:02
-Currently stored access token has expired, getting a new access token.
-Request failed for an unknown reason, response: <Response [401]>.
-Returning False as sending data to Azure was not successful.
-Currently stored access token has expired, getting a new access token.
-Request failed for an unknown reason, response: <Response [401]>.
-Returning False as sending data to Azure was not successful.
-Currently stored access token has expired, getting a new access token.
-Request failed for an unknown reason, response: <Response [401]>.
-Returning False as sending data to Azure was not successful.
-```
-New secret values should be updated to files `/opt/monitor-data-collector/.env` on servers 
-`pulsar-prod-monitor-data-collector` and `pulsar-dev-monitor-data-collector`. After that there should be new data in 
-the Shared dashboard diagrams. I.e. there is no need to restart `monitor-data-collector` services etc.
-
-If there are no error messages in the log files, you can just try to restart a `monitor-data-collector` service such as
-`mqttdatacollector`.
