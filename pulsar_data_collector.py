@@ -23,6 +23,7 @@ TOPIC_NAMES_TO_COLLECT_MSG_RATE_IN = [
     "hfp-mqtt-raw-deduplicated/apc",
     "hfp-mqtt-raw-deduplicated/partial-apc",
     "hfp/v2",
+    "hfp/expanded-apc",
     "hfp/expanded-apc-mqtt-backfeed",
     "gtfs-rt/feedmessage-vehicleposition",
     "metro-ats-mqtt-raw/metro-estimate",
