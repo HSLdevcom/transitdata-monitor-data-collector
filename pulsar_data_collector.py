@@ -103,7 +103,7 @@ def send_pulsar_topic_metric_into_azure(
     """
 
     # Azure wants time in UTC ISO 8601 format
-    time = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S")
+    time = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
 
     series_array = get_series_array(topic_data_map, topic_data_metric_name, topic_names_to_collect)
 
