@@ -14,6 +14,7 @@ NAMESPACE=os.getenv('NAMESPACE')
 METRIC_MSG_RATE_IN = "Msg Rate In"
 METRIC_MSG_RATE_OUT = "Msg Rate Out"
 METRIC_STORAGE_SIZE = "Storage Size"
+METRIC_MSG_BACKLOG = "Msg Backlog"
 
 TOPIC_NAMES_TO_COLLECT_MSG_RATE_IN = [
     "hfp-mqtt-raw/v2",
@@ -48,6 +49,9 @@ TOPIC_NAMES_TO_COLLECT_STORAGE_SIZE = [
     "gtfs-rt/feedmessage-vehicleposition"
 ]
 
+TOPIC_NAMES_TO_COLLECT_SUBSCRIPTIONS = [
+    "hfp/v2"
+]
 
 def main():
     # Structure:
@@ -82,16 +86,15 @@ def collect_data_from_topic(topic_name):
         print(f'Failed to send a POST request to {pulsar_url}. Is pulsar running and accepting requests?')
 
 def send_metrics_into_azure(topic_data_map):
-    send_pulsar_topic_metric_into_azure(METRIC_MSG_RATE_IN, "msgRateIn", topic_data_map, TOPIC_NAMES_TO_COLLECT_MSG_RATE_IN)
-    send_pulsar_topic_metric_into_azure(METRIC_MSG_RATE_OUT, "msgRateOut", topic_data_map, TOPIC_NAMES_TO_COLLECT_MSG_RATE_OUT)
-    send_pulsar_topic_metric_into_azure(METRIC_STORAGE_SIZE, "storageSize", topic_data_map, TOPIC_NAMES_TO_COLLECT_STORAGE_SIZE)
+    send_pulsar_topic_metric_into_azure(METRIC_MSG_RATE_IN, get_series_array(topic_data_map, "msgRateIn", TOPIC_NAMES_TO_COLLECT_MSG_RATE_IN))
+    send_pulsar_topic_metric_into_azure(METRIC_MSG_RATE_OUT, get_series_array(topic_data_map, "msgRateOut", TOPIC_NAMES_TO_COLLECT_MSG_RATE_OUT))
+    send_pulsar_topic_metric_into_azure(METRIC_STORAGE_SIZE, get_series_array(topic_data_map, "storageSize", TOPIC_NAMES_TO_COLLECT_STORAGE_SIZE))
+    send_pulsar_topic_metric_into_azure(METRIC_MSG_BACKLOG, get_msg_backlog_array(topic_data_map, "transitdata_partial_apc_expander_combiner_hfp", "msgBacklog", TOPIC_NAMES_TO_COLLECT_SUBSCRIPTIONS))
     print(f'Pulsar metrics sent: {datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}')
 
 def send_pulsar_topic_metric_into_azure(
         log_analytics_metric_name,
-        topic_data_metric_name,
-        topic_data_map,
-        topic_names_to_collect
+        series_array
 ):
     """
     Send custom metrics into azure. Documentation for the required format can be found from here:
@@ -103,9 +106,7 @@ def send_pulsar_topic_metric_into_azure(
     """
 
     # Azure wants time in UTC ISO 8601 format
-    time = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S")
-
-    series_array = get_series_array(topic_data_map, topic_data_metric_name, topic_names_to_collect)
+    time = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
 
     custom_metric_object = {
         # Time (timestamp): Date and time at which the metric is measured or collected
@@ -153,6 +154,26 @@ def get_series_array(topic_data_map, topic_data_metric_name, topic_names_to_coll
         }
         series_array.append(dimValue)
     return series_array
+
+def get_msg_backlog_array(topic_data_map, topic_data_subscription_name, topic_data_metric_name, topic_names_to_collect):
+    msg_backlog_array = []
+    for topic_name in topic_names_to_collect:
+        subscriptions = topic_data_map[topic_name]["subscriptions"]
+        msg_backlog = subscriptions[topic_data_subscription_name][topic_data_metric_name]
+
+        # If over 10, round to whole number
+        if msg_backlog > 10:
+            msg_backlog = round(msg_backlog)
+
+        dimValue = {
+            "dimValues": [
+                topic_data_metric_name
+            ],
+            "sum": msg_backlog,
+            "count": 1
+        }
+        msg_backlog_array.append(dimValue)
+    return msg_backlog_array
 
 if __name__ == '__main__':
     main()
