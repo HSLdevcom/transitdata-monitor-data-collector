@@ -33,12 +33,19 @@ def send_custom_metrics_request(custom_metric_json, attempts_remaining):
     existing_access_token = f.read()
     f.close()
 
+
+    existing_access_token = existing_access_token.rstrip()
     request_url = f'https://westeurope.monitoring.azure.com/{MONITOR_DATA_COLLECTOR_RESOURCE_ID}/metrics'
     headers = {'Content-type': 'application/json', 'Authorization': f'Bearer {existing_access_token}'}
     response = requests.post(request_url, data=custom_metric_json, headers=headers, timeout=60)
 
+    #print(f'-------------------')
+    #print(f'Request URL: {request_url}.')
+    #print(f'Custom metric JSON: {custom_metric_json}.')
+
     # Return if response is successful
     if response.status_code == 200:
+        #print(f'RETURNING TRUE')
         return True
 
     # Try catch because json.loads(response.text) might not be available
