@@ -75,6 +75,10 @@ def main():
 
 def collect_data_from_topic(topic_name):
     pulsar_url = f'{ADMIN_URL}/admin/v2/persistent/{NAMESPACE}/{topic_name}/stats'
+
+    if topic_name.endswith("v2"):
+        pulsar_url = f'{ADMIN_URL}/admin/v2/persistent/{NAMESPACE}/{topic_name}/partitioned-stats'
+
     try:
         r = requests.get(url=pulsar_url)
         topic_data = r.json()
