@@ -1,0 +1,30 @@
+name: Test and create Docker image
+
+on: [push, pull_request]
+
+jobs:
+  build-aks-dev-docker-image:
+    runs-on: ubuntu-latest
+    # Run only on aks-dev branch
+    if: github.ref == 'refs/heads/aks-dev'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Build and publish aks-dev Docker image
+        uses: elgohr/Publish-Docker-Github-Action@master
+        with:
+          name: hsldevcom/transitdata-stop-cancellation-source
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          tags: aks-dev
