@@ -25,6 +25,6 @@ jobs:
         uses: elgohr/Publish-Docker-Github-Action@master
         with:
           name: hsldevcom/transitdata-monitor-data-collector
-          username: ${{ secrets.TRANSITDATA_DOCKERHUB_USER }}
-          password: ${{ secrets.TRANSITDATA_DOCKERHUB_TOKEN }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
           tags: aks-dev
