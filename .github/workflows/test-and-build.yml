@@ -24,7 +24,7 @@ jobs:
       - name: Build and publish aks-dev Docker image
         uses: elgohr/Publish-Docker-Github-Action@master
         with:
-          name: hsldevcom/transitdata-stop-cancellation-source
+          name: hsldevcom/transitdata-monitor-data-collector
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           tags: aks-dev
