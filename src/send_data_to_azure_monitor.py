@@ -11,7 +11,12 @@ TENANT_ID=os.getenv('TENANT_ID')
 CLIENT_ID=os.getenv('CLIENT_ID')
 CLIENT_SECRET=os.getenv('CLIENT_SECRET')
 MONITOR_DATA_COLLECTOR_RESOURCE_ID=os.getenv('MONITOR_DATA_COLLECTOR_RESOURCE_ID')
-ACCESS_TOKEN_PATH = os.getenv('ACCESS_TOKEN_PATH')
+ACCESS_TOKEN_PATH = os.getenv('ACCESS_TOKEN_1') \
+    + os.getenv('ACCESS_TOKEN_2') \
+    + os.getenv('ACCESS_TOKEN_3') \
+    + os.getenv('ACCESS_TOKEN_4') \
+    + os.getenv('ACCESS_TOKEN_5') \
+    + os.getenv('ACCESS_TOKEN_6')
 
 ### SECRETS / ENV VARIABLES ###
 

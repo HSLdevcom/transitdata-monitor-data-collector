@@ -1,1 +1,1 @@
-*/1 * * * * /usr/bin/python3 pulsar_data_collector.py
+*/1 * * * * python3 /app/pulsar_data_collector.py >> /app/pulsar_data_collector.log 2>&1
