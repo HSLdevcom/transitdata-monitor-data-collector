@@ -82,10 +82,10 @@ def collect_data_from_topic(topic_name):
     try:
         r = requests.get(url=pulsar_url)
         topic_data = r.json()
-        # print(f'Stats of topic {topic_data}:')
-        # print(f'{topic_data["msgRateIn"]}')
-        # print(f'{topic_data["msgRateOut"]}')
-        # print(f'{topic_data["storageSize"]}')
+        print(f'Stats of topic {topic_data}:')
+        print(f'{topic_data["msgRateIn"]}')
+        print(f'{topic_data["msgRateOut"]}')
+        print(f'{topic_data["storageSize"]}')
         return topic_data
     except Exception as e:
         print(f'Failed to send a POST request to {pulsar_url}. Is pulsar running and accepting requests?')
