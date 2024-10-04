@@ -79,8 +79,11 @@ def make_sure_access_token_file_exists():
         f.close()
     except Exception as e:
         # Create access_token.txt file, if it does not exist
+        print("Creating Access token on disk........")
         f = open(ACCESS_TOKEN_PATH, "x")
+        f.write(ACCESS_TOKEN.rstrip())
         f.close()
+        print("........Access token file created on disk")
 
 def request_new_access_token_and_write_it_on_disk():
     request_url = f'https://login.microsoftonline.com/{TENANT_ID}/oauth2/token'
