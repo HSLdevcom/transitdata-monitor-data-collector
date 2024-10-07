@@ -12,4 +12,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 EXPOSE 80
 
-CMD ["python3", "/app/pulsar_data_collector.py"]
+CMD ["python3", "/app/mqtt_data_collector.py"]
