@@ -3,4 +3,5 @@ paho-mqtt==1.6.1
 python-dotenv==1.0.1
 protobuf
 google
+googleapis-common-protos
 #gtfs-realtime-bindings==0.0.7
