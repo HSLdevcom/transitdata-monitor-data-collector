@@ -12,4 +12,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 EXPOSE 80
 
-CMD ["/usr/local/bin/python3", "/app/mqtt_data_collector.py"]
+CMD ["/usr/local/bin/python3", "/app/gtfsrt_data_collector.py"]
