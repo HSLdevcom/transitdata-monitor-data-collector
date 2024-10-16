@@ -17,13 +17,13 @@ METRIC_STORAGE_SIZE = "Storage Size"
 METRIC_MSG_BACKLOG = "Msg Backlog"
 
 TOPIC_NAMES_TO_COLLECT_MSG_RATE_IN = [
-    "partitioned/hfp-mqtt-raw/v2",
+    "partitioned/hfp-mqtt-raw-v2",
     "hfp-mqtt-raw/apc",
     "hfp-mqtt-raw/partial-apc",
-    "partitioned/hfp-mqtt-raw-deduplicated/v2",
+    "partitioned/hfp-mqtt-raw-deduplicated-v2",
     "hfp-mqtt-raw-deduplicated/apc",
     "hfp-mqtt-raw-deduplicated/partial-apc",
-    "partitioned/hfp/v2",
+    "partitioned/hfp-v2",
     "hfp/expanded-apc",
     "hfp/expanded-apc-mqtt-backfeed",
     "gtfs-rt/feedmessage-vehicleposition",
