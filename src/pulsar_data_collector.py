@@ -39,19 +39,19 @@ TOPIC_NAMES_TO_COLLECT_MSG_RATE_IN = [
 ]
 
 TOPIC_NAMES_TO_COLLECT_MSG_RATE_OUT = [
-    "hfp-mqtt-raw/v2",
+    "partitioned/hfp-mqtt-raw-v2",
     "hfp/passenger-count",
     "gtfs-rt/feedmessage-vehicleposition",
     "gtfs-rt/feedmessage-tripupdate"
 ]
 
 TOPIC_NAMES_TO_COLLECT_STORAGE_SIZE = [
-    "hfp/v2",
+    "partitioned/hfp-v2",
     "gtfs-rt/feedmessage-vehicleposition"
 ]
 
 TOPIC_NAMES_TO_COLLECT_SUBSCRIPTIONS = [
-    "hfp/v2"
+    "partitioned/hfp-v2"
 ]
 
 def main():
