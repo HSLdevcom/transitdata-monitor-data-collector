@@ -82,6 +82,7 @@ def collect_data_from_topic(topic_name):
     try:
         r = requests.get(url=pulsar_url)
         topic_data = r.json()
+        print(f'Topic name {topic_name}')
         print(f'Stats of topic {topic_data}:')
         print(f'{topic_data["msgRateIn"]}')
         print(f'{topic_data["msgRateOut"]}')
