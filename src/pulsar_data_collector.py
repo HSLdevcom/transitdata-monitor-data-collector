@@ -17,13 +17,13 @@ METRIC_STORAGE_SIZE = "Storage Size"
 METRIC_MSG_BACKLOG = "Msg Backlog"
 
 TOPIC_NAMES_TO_COLLECT_MSG_RATE_IN = [
-    "partitioned/hfp-mqtt-raw-v2",
+    "hfp-mqtt-raw/v2",
     "hfp-mqtt-raw/apc",
     "hfp-mqtt-raw/partial-apc",
-    "partitioned/hfp-mqtt-raw-deduplicated-v2",
+    "hfp-mqtt-raw-deduplicated/v2",
     "hfp-mqtt-raw-deduplicated/apc",
     "hfp-mqtt-raw-deduplicated/partial-apc",
-    "partitioned/hfp-v2",
+    "hfp/v2",
     "hfp/expanded-apc",
     "hfp/expanded-apc-mqtt-backfeed",
     "gtfs-rt/feedmessage-vehicleposition",
@@ -39,19 +39,19 @@ TOPIC_NAMES_TO_COLLECT_MSG_RATE_IN = [
 ]
 
 TOPIC_NAMES_TO_COLLECT_MSG_RATE_OUT = [
-    "partitioned/hfp-mqtt-raw-v2",
+    "hfp-mqtt-raw/v2",
     "hfp/passenger-count",
     "gtfs-rt/feedmessage-vehicleposition",
     "gtfs-rt/feedmessage-tripupdate"
 ]
 
 TOPIC_NAMES_TO_COLLECT_STORAGE_SIZE = [
-    "partitioned/hfp-v2",
+    "hfp/v2",
     "gtfs-rt/feedmessage-vehicleposition"
 ]
 
 TOPIC_NAMES_TO_COLLECT_SUBSCRIPTIONS = [
-    "partitioned/hfp-v2"
+    "hfp/v2"
 ]
 
 def main():
@@ -75,9 +75,6 @@ def main():
 
 def collect_data_from_topic(topic_name):
     pulsar_url = f'{ADMIN_URL}/admin/v2/persistent/{NAMESPACE}/{topic_name}/stats'
-
-    if topic_name.endswith("v2"):
-        pulsar_url = f'{ADMIN_URL}/admin/v2/persistent/{NAMESPACE}/{topic_name}/partitioned-stats'
 
     try:
         r = requests.get(url=pulsar_url)
