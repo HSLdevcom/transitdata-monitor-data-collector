@@ -92,7 +92,7 @@ def send_metrics_into_azure(topic_data_map):
     send_pulsar_topic_metric_into_azure(METRIC_MSG_RATE_IN, get_series_array(topic_data_map, "msgRateIn", TOPIC_NAMES_TO_COLLECT_MSG_RATE_IN))
     send_pulsar_topic_metric_into_azure(METRIC_MSG_RATE_OUT, get_series_array(topic_data_map, "msgRateOut", TOPIC_NAMES_TO_COLLECT_MSG_RATE_OUT))
     send_pulsar_topic_metric_into_azure(METRIC_STORAGE_SIZE, get_series_array(topic_data_map, "storageSize", TOPIC_NAMES_TO_COLLECT_STORAGE_SIZE))
-    send_pulsar_topic_metric_into_azure(METRIC_MSG_BACKLOG, get_msg_backlog_array(topic_data_map, "transitdata_partial_apc_expander_combiner_hfp", "msgBacklog", TOPIC_NAMES_TO_COLLECT_SUBSCRIPTIONS))
+    #send_pulsar_topic_metric_into_azure(METRIC_MSG_BACKLOG, get_msg_backlog_array(topic_data_map, "transitdata_partial_apc_expander_combiner_hfp", "msgBacklog", TOPIC_NAMES_TO_COLLECT_SUBSCRIPTIONS))
     print(f'Pulsar metrics sent: {datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}')
 
 def send_pulsar_topic_metric_into_azure(
