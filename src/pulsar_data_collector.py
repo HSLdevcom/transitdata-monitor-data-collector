@@ -119,7 +119,7 @@ def send_pulsar_topic_metric_into_azure(
                 # Metric (name): name of the metric
                 "metric": log_analytics_metric_name,
                 # Namespace: Categorize or group similar metrics together
-                "namespace": "Pulsar",
+                "namespace": "PulsarProd",
                 # Dimension (dimNames): Metric has a single dimension
                 "dimNames": [
                   "Topic"
