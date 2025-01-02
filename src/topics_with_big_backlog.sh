@@ -3,16 +3,17 @@ if ! command -v jq &> /dev/null
 then
     echo "jq could not be found, installing..."
     apt-get update && apt-get install -y jq
-else
-    echo "jq is already installed"
+fi
+
+if ! command -v curl &> /dev/null
+then
+    echo "curl could not be found, installing..."
+    apt-get update && apt-get install -y curl
 fi
 
 if [ -e .env ]
 then
-    echo "using .env file..."
     export $(grep -v '^#' .env | xargs)
-else
-    echo ".env file does not exist. Hoping to find all the required environment variables..."
 fi
 
 outputNamespaces=$(curl $ADMIN_URL/admin/v2/namespaces/$NAMESPACE 2>/dev/null)

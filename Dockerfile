@@ -11,6 +11,8 @@ RUN apt-get update && apt-get install -y \
 RUN pip install --no-cache-dir -r requirements.txt
 RUN pip list
 
+RUN chmod +x /app/*.sh
+
 EXPOSE 80
 
 CMD ["/usr/local/bin/python3", "/app/mqtt_data_collector.py"]
