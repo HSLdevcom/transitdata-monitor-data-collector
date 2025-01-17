@@ -16,6 +16,7 @@ load_dotenv()
 MQTT_KEEP_ALIVE_SECS = 5
 
 IS_DEBUG = os.getenv('IS_DEBUG') == "True"
+MQTT_CLIENT_ID = os.getenv('MQTT_CLIENT_ID') == "transitdata_monitor_data_collector"
 
 # How long to listen to the topics until we send data to Azure. Should be 60 in production
 MONITOR_PERIOD_IN_SECONDS = 60 if IS_DEBUG == False else 20
@@ -52,7 +53,7 @@ class Topic:
         self.measuring_started_at = None
         self.measuring_stopped_at = None
 
-        client = mqtt.Client()
+        client = mqtt.Client(client_id=MQTT_CLIENT_ID)
 
         client.on_connect = self._on_connect_callback
         client.on_message = self._on_message_callback
