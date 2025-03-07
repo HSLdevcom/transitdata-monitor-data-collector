@@ -22,7 +22,8 @@ def get_stats(url):
     print(f'-------------------')
     print(f'-------------------')
     print(f'URL: {url}.')
-    print(f'Response content: {response.content}')
+    print(f'Num entities: {num_entities}')
+    print(f'Time diff: {time_diff}')
 
     return (num_entities, time_diff)
 
