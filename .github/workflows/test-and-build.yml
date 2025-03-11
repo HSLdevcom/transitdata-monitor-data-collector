@@ -3,6 +3,31 @@ name: Test and create Docker image
 on: [push, pull_request]
 
 jobs:
+  build-release-docker-image:
+    runs-on: ubuntu-latest
+    # Run only for tagged commits
+    if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Build and publish release Docker image
+        uses: elgohr/Publish-Docker-Github-Action@master
+        with:
+          name: hsldevcom/transitdata-monitor-data-collector
+          username: ${{ secrets.TRANSITDATA_DOCKERHUB_USER }}
+          password: ${{ secrets.TRANSITDATA_DOCKERHUB_TOKEN }}
+          tag_semver: true
   build-aks-dev-docker-image:
     runs-on: ubuntu-latest
     # Run only on aks-dev branch
