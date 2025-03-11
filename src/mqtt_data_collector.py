@@ -184,6 +184,8 @@ def main():
             topic_data_map_value = topic.get_msg_count()
             if topic_data_map_value != None:
                 topic_data_map[topic_data_map_key] = topic_data_map_value
+            else:
+                print(f"Skipping topic {topic_data_map_key} because there is no data value.")
 
         t = Thread(target=send_mqtt_msg_count_to_azure, args=(topic_data_map,))
         t.start()
