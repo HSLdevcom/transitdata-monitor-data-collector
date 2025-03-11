@@ -19,12 +19,6 @@ def get_stats(url):
     num_entities = len(feed.entity)
     time_diff = round(time.time()) - feed.header.timestamp
 
-    print(f'-------------------')
-    print(f'-------------------')
-    print(f'URL: {url}.')
-    print(f'Num entities: {num_entities}')
-    print(f'Time diff: {time_diff}')
-
     return (num_entities, time_diff)
 
 def send_data_to_azure_monitor(time, metric, url, value):
