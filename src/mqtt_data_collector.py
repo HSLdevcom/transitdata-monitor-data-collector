@@ -256,12 +256,20 @@ def send_mqtt_msg_count_to_azure(topic_data_map):
         else:
             print("Failed to send metrics to Azure.")
 
+
+def negate_number(number):
+    return -number
+
+
 def get_series_array(topic_data_map):
     series_array = []
     for key in topic_data_map:
         topic_msg_count = topic_data_map[key]
 
         topic_msg_count = round(topic_msg_count, 2)
+
+        if topic_msg_count < 0:
+            topic_msg_count = negate_number(topic_msg_count)
 
         # If over 10, round to whole number
         if topic_msg_count > 10:
