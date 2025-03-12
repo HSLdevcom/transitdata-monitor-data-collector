@@ -13,7 +13,7 @@ load_dotenv()
 
 # MQTT keep alive interval
 # This needs to be small enough to detect if the connection is down so that message rate will be calculated correctly
-MQTT_KEEP_ALIVE_SECS = 5
+MQTT_KEEP_ALIVE_SECS = 20
 
 IS_DEBUG = os.getenv('IS_DEBUG') == "True"
 
