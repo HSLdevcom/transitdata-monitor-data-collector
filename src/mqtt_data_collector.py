@@ -13,7 +13,7 @@ load_dotenv()
 
 # MQTT keep alive interval
 # This needs to be small enough to detect if the connection is down so that message rate will be calculated correctly
-MQTT_KEEP_ALIVE_SECS = 5
+MQTT_KEEP_ALIVE_SECS = 20
 
 IS_DEBUG = os.getenv("IS_DEBUG") == "True"
 
@@ -199,6 +199,8 @@ def main():
             topic_data_map_value = topic.get_msg_count()
             if topic_data_map_value != None:
                 topic_data_map[topic_data_map_key] = topic_data_map_value
+            else:
+                print(f"Skipping topic {topic_data_map_key} because there is no data value.")
 
         t = Thread(target=send_mqtt_msg_count_to_azure, args=(topic_data_map,))
         t.start()
@@ -274,12 +276,19 @@ def send_mqtt_msg_count_to_azure(topic_data_map):
             print("Failed to send metrics to Azure.")
 
 
+def negate_number(number):
+    return -number
+
+
 def get_series_array(topic_data_map):
     series_array = []
     for key in topic_data_map:
         topic_msg_count = topic_data_map[key]
 
         topic_msg_count = round(topic_msg_count, 2)
+
+        if topic_msg_count < 0:
+            topic_msg_count = negate_number(topic_msg_count)
 
         # If over 10, round to whole number
         if topic_msg_count > 10:

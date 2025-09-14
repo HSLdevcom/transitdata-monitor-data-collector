@@ -39,6 +39,7 @@ TOPIC_NAMES_TO_COLLECT_MSG_RATE_IN = [
 ]
 
 TOPIC_NAMES_TO_COLLECT_MSG_RATE_OUT = [
+    "hfp-mqtt-raw/v2",
     "hfp/passenger-count",
     "gtfs-rt/feedmessage-vehicleposition",
     "gtfs-rt/feedmessage-tripupdate",
@@ -80,6 +81,7 @@ def collect_data_from_topic(topic_name):
     try:
         r = requests.get(url=pulsar_url)
         topic_data = r.json()
+        # print(f'Topic name {topic_name}')
         # print(f'Stats of topic {topic_data}:')
         # print(f'{topic_data["msgRateIn"]}')
         # print(f'{topic_data["msgRateOut"]}')
@@ -110,7 +112,7 @@ def send_metrics_into_azure(topic_data_map):
             topic_data_map, "storageSize", TOPIC_NAMES_TO_COLLECT_STORAGE_SIZE
         ),
     )
-    send_pulsar_topic_metric_into_azure(
+    #send_pulsar_topic_metric_into_azure(
         METRIC_MSG_BACKLOG,
         get_msg_backlog_array(
             topic_data_map,

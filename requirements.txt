@@ -1,3 +1,6 @@
+requests==2.32.3
 paho-mqtt==1.6.1
-python-dotenv==0.20.0
-gtfs-realtime-bindings==0.0.7
+python-dotenv==1.0.1
+protobuf
+gtfs-realtime-bindings
+#gtfs-realtime-bindings==0.0.7

@@ -1,6 +1,6 @@
 # Transitdata Monitor Data Collector
 
-Collects MQTT and Pulsar data and sends it to Azure Monitor so that alerts can monitor the data and alert when needed.
+Collects MQTT and Pulsar data and sends it to Azure Monitor so that alerts can monitor the data and alert when needed. Additionally contains two shell script that can be used to query the statistics of all Pulsar topics.
 
 ## Run locally
 
@@ -12,7 +12,7 @@ To run `pulsar_data_collector.py`, you need to have a tunnel open to pulsar_dev_
 
 Also make sure that NAMESPACE value is correct in .env
 
-and then run either:
+and then run:
 ```
 python3 pulsar_data_collector.py
 ```
@@ -43,6 +43,28 @@ Add list of GTFS-RT URLs to an environment variable named `GTFSRT_URLS` and run:
 python3 gtfsrt_data_collector.py
 ```
 
-## Deployment
+## Pulsar shell scripts
 
-Deployment is done with ansible on the pulsar proxy server. In order to update this app, create a new release in github: https://github.com/HSLdevcom/transitdata-monitor-data-collector/releases/new and then run the pulsar proxy playbook.
+When you run either of these scripts for the first time, the script will install `jq` and/or `curl` utilities if they don't already exist in the environment.
+
+Both scripts use env variables `ADMIN_URL` and `NAMESPACE`. They read environment variables from `.env` file if it exists in the same directory.
+
+Both scripts query dynamically all Pulsar topics in the namespace.
+
+### Selected statistics of all Pulsar topics
+
+```bash
+./stats_of_all_topics.sh
+```
+Returns for each topic these selected statistics:
+- msgRateIn
+- msgRateOut
+- storageSize
+- backlogSize
+
+### Pulsar topics with big backlog
+
+```bash
+./topics_with_big_backlog.sh
+```
+Returns backlog sizes of topics whose backlog size is greater than or equal to 1G.
