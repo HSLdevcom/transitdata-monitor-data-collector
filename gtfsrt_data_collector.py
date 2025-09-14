@@ -9,7 +9,8 @@ from send_data_to_azure_monitor import send_custom_metrics_request
 
 load_dotenv()
 
-IS_DEBUG = os.getenv('IS_DEBUG') == "True"
+IS_DEBUG = os.getenv("IS_DEBUG") == "True"
+
 
 def get_stats(url):
     feed = gtfs_realtime_pb2.FeedMessage()
@@ -20,6 +21,7 @@ def get_stats(url):
     time_diff = round(time.time()) - feed.header.timestamp
 
     return (num_entities, time_diff)
+
 
 def send_data_to_azure_monitor(time, metric, url, value):
     time_str = time.strftime("%Y-%m-%dT%H:%M:%S")
@@ -34,21 +36,11 @@ def send_data_to_azure_monitor(time, metric, url, value):
                 # Namespace: Categorize or group similar metrics together
                 "namespace": "GTFSRT",
                 # Dimension (dimNames): Metric has a single dimension
-                "dimNames": [
-                  "URL"
-                ],
+                "dimNames": ["URL"],
                 # Series: data for each monitored topic
-                "series": [
-                    {
-                        "dimValues": [
-                            url
-                        ],
-                        "sum": value,
-                        "count": 1
-                    }
-                ]
+                "series": [{"dimValues": [url], "sum": value, "count": 1}],
             }
-        }
+        },
     }
 
     custom_metric_json = json.dumps(custom_metric_object)
@@ -57,6 +49,7 @@ def send_data_to_azure_monitor(time, metric, url, value):
         print(custom_metric_json)
     else:
         send_custom_metrics_request(custom_metric_json, 3)
+
 
 def main():
     urls = os.getenv("GTFSRT_URLS").split(",")
@@ -68,5 +61,6 @@ def main():
         send_data_to_azure_monitor(time, "Entity Count", url, entity_count)
         send_data_to_azure_monitor(time, "Timestamp Age", url, last_published_ago_secs)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
