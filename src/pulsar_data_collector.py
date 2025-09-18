@@ -7,9 +7,9 @@ from send_data_to_azure_monitor import send_custom_metrics_request
 
 load_dotenv()
 
-IS_DEBUG = os.getenv('IS_DEBUG') == "True"
-ADMIN_URL=os.getenv('ADMIN_URL')
-NAMESPACE=os.getenv('NAMESPACE')
+IS_DEBUG = os.getenv("IS_DEBUG") == "True"
+ADMIN_URL = os.getenv("ADMIN_URL")
+NAMESPACE = os.getenv("NAMESPACE")
 
 METRIC_MSG_RATE_IN = "Msg Rate In"
 METRIC_MSG_RATE_OUT = "Msg Rate Out"
@@ -35,24 +35,20 @@ TOPIC_NAMES_TO_COLLECT_MSG_RATE_IN = [
     "internal-messages/pubtrans-stop-estimate",
     "internal-messages/feedmessage-tripupdate",
     "gtfs-rt/feedmessage-tripupdate",
-    "internal-messages/stop-cancellation"
+    "internal-messages/stop-cancellation",
 ]
 
 TOPIC_NAMES_TO_COLLECT_MSG_RATE_OUT = [
     "hfp-mqtt-raw/v2",
     "hfp/passenger-count",
     "gtfs-rt/feedmessage-vehicleposition",
-    "gtfs-rt/feedmessage-tripupdate"
+    "gtfs-rt/feedmessage-tripupdate",
 ]
 
-TOPIC_NAMES_TO_COLLECT_STORAGE_SIZE = [
-    "hfp/v2",
-    "gtfs-rt/feedmessage-vehicleposition"
-]
+TOPIC_NAMES_TO_COLLECT_STORAGE_SIZE = ["hfp/v2", "gtfs-rt/feedmessage-vehicleposition"]
 
-TOPIC_NAMES_TO_COLLECT_SUBSCRIPTIONS = [
-    "hfp/v2"
-]
+TOPIC_NAMES_TO_COLLECT_SUBSCRIPTIONS = ["hfp/v2"]
+
 
 def main():
     # Structure:
@@ -61,7 +57,13 @@ def main():
     topic_data_map = {}
 
     # Merge all topic name lists as a single array
-    collect_data_from_topics_list = list(set(TOPIC_NAMES_TO_COLLECT_MSG_RATE_IN + TOPIC_NAMES_TO_COLLECT_MSG_RATE_OUT + TOPIC_NAMES_TO_COLLECT_STORAGE_SIZE))
+    collect_data_from_topics_list = list(
+        set(
+            TOPIC_NAMES_TO_COLLECT_MSG_RATE_IN
+            + TOPIC_NAMES_TO_COLLECT_MSG_RATE_OUT
+            + TOPIC_NAMES_TO_COLLECT_STORAGE_SIZE
+        )
+    )
 
     for topic_name in collect_data_from_topics_list:
         topic_data = collect_data_from_topic(topic_name)
@@ -71,11 +73,11 @@ def main():
     if bool(topic_data_map):
         send_metrics_into_azure(topic_data_map)
     else:
-        print(f'Not sending metrics, topic_data_map was empty.')
+        print(f"Not sending metrics, topic_data_map was empty.")
+
 
 def collect_data_from_topic(topic_name):
-    pulsar_url = f'{ADMIN_URL}/admin/v2/persistent/{NAMESPACE}/{topic_name}/stats'
-
+    pulsar_url = f"{ADMIN_URL}/admin/v2/persistent/{NAMESPACE}/{topic_name}/stats"
     try:
         r = requests.get(url=pulsar_url)
         topic_data = r.json()
@@ -86,19 +88,43 @@ def collect_data_from_topic(topic_name):
         # print(f'{topic_data["storageSize"]}')
         return topic_data
     except Exception as e:
-        print(f'Failed to send a POST request to {pulsar_url}. Is pulsar running and accepting requests?')
+        print(
+            f"Failed to send a POST request to {pulsar_url}. Is pulsar running and accepting requests?"
+        )
+
 
 def send_metrics_into_azure(topic_data_map):
-    send_pulsar_topic_metric_into_azure(METRIC_MSG_RATE_IN, get_series_array(topic_data_map, "msgRateIn", TOPIC_NAMES_TO_COLLECT_MSG_RATE_IN))
-    send_pulsar_topic_metric_into_azure(METRIC_MSG_RATE_OUT, get_series_array(topic_data_map, "msgRateOut", TOPIC_NAMES_TO_COLLECT_MSG_RATE_OUT))
-    send_pulsar_topic_metric_into_azure(METRIC_STORAGE_SIZE, get_series_array(topic_data_map, "storageSize", TOPIC_NAMES_TO_COLLECT_STORAGE_SIZE))
-    #send_pulsar_topic_metric_into_azure(METRIC_MSG_BACKLOG, get_msg_backlog_array(topic_data_map, "transitdata_partial_apc_expander_combiner_hfp", "msgBacklog", TOPIC_NAMES_TO_COLLECT_SUBSCRIPTIONS))
-    print(f'Pulsar metrics sent: {datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}')
+    send_pulsar_topic_metric_into_azure(
+        METRIC_MSG_RATE_IN,
+        get_series_array(
+            topic_data_map, "msgRateIn", TOPIC_NAMES_TO_COLLECT_MSG_RATE_IN
+        ),
+    )
+    send_pulsar_topic_metric_into_azure(
+        METRIC_MSG_RATE_OUT,
+        get_series_array(
+            topic_data_map, "msgRateOut", TOPIC_NAMES_TO_COLLECT_MSG_RATE_OUT
+        ),
+    )
+    send_pulsar_topic_metric_into_azure(
+        METRIC_STORAGE_SIZE,
+        get_series_array(
+            topic_data_map, "storageSize", TOPIC_NAMES_TO_COLLECT_STORAGE_SIZE
+        ),
+    )
+    #send_pulsar_topic_metric_into_azure(
+        METRIC_MSG_BACKLOG,
+        get_msg_backlog_array(
+            topic_data_map,
+            "transitdata_partial_apc_expander_combiner_hfp",
+            "msgBacklog",
+            TOPIC_NAMES_TO_COLLECT_SUBSCRIPTIONS,
+        ),
+    )
+    print(f"Pulsar metrics sent: {datetime.now().strftime('%Y-%m-%dT%H:%M:%S')}")
 
-def send_pulsar_topic_metric_into_azure(
-        log_analytics_metric_name,
-        series_array
-):
+
+def send_pulsar_topic_metric_into_azure(log_analytics_metric_name, series_array):
     """
     Send custom metrics into azure. Documentation for the required format can be found from here:
     https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/metrics-custom-overview
@@ -121,13 +147,11 @@ def send_pulsar_topic_metric_into_azure(
                 # Namespace: Categorize or group similar metrics together
                 "namespace": "Pulsar",
                 # Dimension (dimNames): Metric has a single dimension
-                "dimNames": [
-                  "Topic"
-                ],
+                "dimNames": ["Topic"],
                 # Series: data for each monitored topic
-                "series": series_array
+                "series": series_array,
             }
-        }
+        },
     }
 
     custom_metric_json = json.dumps(custom_metric_object)
@@ -136,6 +160,7 @@ def send_pulsar_topic_metric_into_azure(
         print(custom_metric_json)
     else:
         send_custom_metrics_request(custom_metric_json, 3)
+
 
 def get_series_array(topic_data_map, topic_data_metric_name, topic_names_to_collect):
     series_array = []
@@ -148,35 +173,36 @@ def get_series_array(topic_data_map, topic_data_metric_name, topic_names_to_coll
         if topic_msg_count > 10:
             topic_msg_count = round(topic_msg_count)
 
-        dimValue = {
-            "dimValues": [
-                topic_name
-            ],
-            "sum": topic_msg_count,
-            "count": 1
-        }
+        dimValue = {"dimValues": [topic_name], "sum": topic_msg_count, "count": 1}
         series_array.append(dimValue)
     return series_array
 
-def get_msg_backlog_array(topic_data_map, topic_data_subscription_name, topic_data_metric_name, topic_names_to_collect):
+
+def get_msg_backlog_array(
+    topic_data_map,
+    topic_data_subscription_name,
+    topic_data_metric_name,
+    topic_names_to_collect,
+):
     msg_backlog_array = []
     for topic_name in topic_names_to_collect:
         subscriptions = topic_data_map[topic_name]["subscriptions"]
-        msg_backlog = subscriptions[topic_data_subscription_name][topic_data_metric_name]
+        msg_backlog = subscriptions[topic_data_subscription_name][
+            topic_data_metric_name
+        ]
 
         # If over 10, round to whole number
         if msg_backlog > 10:
             msg_backlog = round(msg_backlog)
 
         dimValue = {
-            "dimValues": [
-                topic_data_metric_name
-            ],
+            "dimValues": [topic_data_metric_name],
             "sum": msg_backlog,
-            "count": 1
+            "count": 1,
         }
         msg_backlog_array.append(dimValue)
     return msg_backlog_array
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
