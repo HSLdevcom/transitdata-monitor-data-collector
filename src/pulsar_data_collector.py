@@ -1,8 +1,10 @@
-import requests
 import json
-from datetime import datetime
 import os
+from datetime import datetime
+
+import requests
 from dotenv import load_dotenv
+
 from send_data_to_azure_monitor import send_custom_metrics_request
 
 load_dotenv()
@@ -67,13 +69,13 @@ def main():
 
     for topic_name in collect_data_from_topics_list:
         topic_data = collect_data_from_topic(topic_name)
-        if topic_data != None:
+        if topic_data is not None:
             topic_data_map[topic_name] = topic_data
 
     if bool(topic_data_map):
         send_metrics_into_azure(topic_data_map)
     else:
-        print(f"Not sending metrics, topic_data_map was empty.")
+        print("Not sending metrics, topic_data_map was empty.")
 
 
 def collect_data_from_topic(topic_name):
@@ -87,7 +89,7 @@ def collect_data_from_topic(topic_name):
         # print(f'{topic_data["msgRateOut"]}')
         # print(f'{topic_data["storageSize"]}')
         return topic_data
-    except Exception as e:
+    except Exception:
         print(
             f"Failed to send a POST request to {pulsar_url}. Is pulsar running and accepting requests?"
         )
@@ -112,7 +114,7 @@ def send_metrics_into_azure(topic_data_map):
             topic_data_map, "storageSize", TOPIC_NAMES_TO_COLLECT_STORAGE_SIZE
         ),
     )
-    #send_pulsar_topic_metric_into_azure(
+    send_pulsar_topic_metric_into_azure(
         METRIC_MSG_BACKLOG,
         get_msg_backlog_array(
             topic_data_map,

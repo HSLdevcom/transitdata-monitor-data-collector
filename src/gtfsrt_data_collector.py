@@ -1,10 +1,12 @@
-from google.transit import gtfs_realtime_pb2
-import requests
-import time
 import json
-from datetime import datetime
 import os
+import time
+from datetime import datetime
+
+import requests
 from dotenv import load_dotenv
+from google.transit import gtfs_realtime_pb2
+
 from send_data_to_azure_monitor import send_custom_metrics_request
 
 load_dotenv()

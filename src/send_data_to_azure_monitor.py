@@ -1,6 +1,7 @@
-import requests
 import json
 import os
+
+import requests
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -12,12 +13,14 @@ CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 MONITOR_DATA_COLLECTOR_RESOURCE_ID = os.getenv("MONITOR_DATA_COLLECTOR_RESOURCE_ID")
 ACCESS_TOKEN_PATH = os.getenv("ACCESS_TOKEN_PATH")
-ACCESS_TOKEN = os.getenv('ACCESS_TOKEN_1') \
-    + os.getenv('ACCESS_TOKEN_2') \
-    + os.getenv('ACCESS_TOKEN_3') \
-    + os.getenv('ACCESS_TOKEN_4') \
-    + os.getenv('ACCESS_TOKEN_5') \
-    + os.getenv('ACCESS_TOKEN_6')
+ACCESS_TOKEN = (
+    os.getenv("ACCESS_TOKEN_1")
+    + os.getenv("ACCESS_TOKEN_2")
+    + os.getenv("ACCESS_TOKEN_3")
+    + os.getenv("ACCESS_TOKEN_4")
+    + os.getenv("ACCESS_TOKEN_5")
+    + os.getenv("ACCESS_TOKEN_6")
+)
 
 ### SECRETS / ENV VARIABLES ###
 
@@ -40,7 +43,6 @@ def send_custom_metrics_request(custom_metric_json, attempts_remaining):
     existing_access_token = f.read()
     f.close()
 
-
     existing_access_token = existing_access_token.rstrip()
     request_url = f"https://westeurope.monitoring.azure.com/{MONITOR_DATA_COLLECTOR_RESOURCE_ID}/metrics"
     headers = {
@@ -51,13 +53,13 @@ def send_custom_metrics_request(custom_metric_json, attempts_remaining):
         request_url, data=custom_metric_json, headers=headers, timeout=60
     )
 
-    print(f'-------------------')
-    print(f'Request URL: {request_url}.')
-    print(f'Custom metric JSON: {custom_metric_json}.')
+    print("-------------------")
+    print(f"Request URL: {request_url}.")
+    print(f"Custom metric JSON: {custom_metric_json}.")
 
     # Return if response is successful
     if response.status_code == 200:
-        print(f'RETURNING TRUE')
+        print("RETURNING TRUE")
         return True
 
     # Try catch because json.loads(response.text) might not be available
@@ -77,7 +79,7 @@ def send_custom_metrics_request(custom_metric_json, attempts_remaining):
             return send_custom_metrics_request(custom_metric_json, attempts_remaining)
         else:
             print(f"Request failed for an unknown reason, response: {response_dict}.")
-    except Exception as e:
+    except Exception:
         print(f"Request failed for an unknown reason, response: {response}.")
 
     print("Returning False as sending data to Azure was not successful.")
@@ -88,7 +90,7 @@ def make_sure_access_token_file_exists():
     try:
         f = open(ACCESS_TOKEN_PATH, "r")
         f.close()
-    except Exception as e:
+    except Exception:
         # Create access_token.txt file, if it does not exist
         print("Creating Access token on disk........")
         f = open(ACCESS_TOKEN_PATH, "x")
