@@ -4,3 +4,4 @@ python-dotenv==1.0.1
 protobuf
 gtfs-realtime-bindings
 #gtfs-realtime-bindings==0.0.7
+ruff==0.14.3

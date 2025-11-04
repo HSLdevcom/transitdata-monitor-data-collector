@@ -1,13 +1,13 @@
-import paho.mqtt.client as mqtt
-import time
 import json
+import os
+import time
 from datetime import datetime
 from threading import Thread
-import os
+
+import paho.mqtt.client as mqtt
 from dotenv import load_dotenv
+
 from send_data_to_azure_monitor import send_custom_metrics_request
-import signal
-from contextlib import contextmanager
 
 load_dotenv()
 
@@ -18,7 +18,7 @@ MQTT_KEEP_ALIVE_SECS = 20
 IS_DEBUG = os.getenv("IS_DEBUG") == "True"
 
 # How long to listen to the topics until we send data to Azure. Should be 60 in production
-MONITOR_PERIOD_IN_SECONDS = 60 if IS_DEBUG == False else 20
+MONITOR_PERIOD_IN_SECONDS = 60 if not IS_DEBUG else 20
 
 
 class Topic:
@@ -97,13 +97,13 @@ class Topic:
         # print(msg.topic+" "+str(msg.payload))
 
     def get_msg_count(self):
-        if self.measuring_started_at == None:
+        if self.measuring_started_at is None:
             print(
                 f"No data was measured for {self.get_broker_address()} on topic {self.topic_name}. Maybe the client was not connected?"
             )
             return None
 
-        if self.measuring_stopped_at != None:
+        if self.measuring_stopped_at is not None:
             elapsed_time = self.measuring_stopped_at - self.measuring_started_at
 
             # If data was collected for too short period, we can't accurately calculate the message rate
@@ -197,17 +197,19 @@ def main():
                 f"{topic.topic_address}:{topic.topic_name}:{topic.topic_port}"
             )
             topic_data_map_value = topic.get_msg_count()
-            if topic_data_map_value != None:
+            if topic_data_map_value is not None:
                 topic_data_map[topic_data_map_key] = topic_data_map_value
             else:
-                print(f"Skipping topic {topic_data_map_key} because there is no data value.")
+                print(
+                    f"Skipping topic {topic_data_map_key} because there is no data value."
+                )
 
         t = Thread(target=send_mqtt_msg_count_to_azure, args=(topic_data_map,))
         t.start()
 
         # (Re)start threads that are in is_running == False state
         for topic in topic_list:
-            if topic.is_running == False:
+            if not topic.is_running:
                 print(f"Topic {topic.topic_name} was not running, starting it.")
 
                 topic.listen_topic()
@@ -257,13 +259,13 @@ def send_mqtt_msg_count_to_azure(topic_data_map):
         is_ok = send_custom_metrics_request(
             custom_metric_json=custom_metric_json, attempts_remaining=3
         )
-        if is_ok == False:
+        if not is_ok:
             print("Sending data to Azure failed, trying again in 5 minutes.")
             time.sleep(300)  # Wait 5 minutes before the next attempt
             is_ok = send_custom_metrics_request(
                 custom_metric_json=custom_metric_json, attempts_remaining=3
             )
-            if is_ok == False:
+            if not is_ok:
                 print("Sending data to Azure failed, trying again in 10 minutes.")
                 time.sleep(600)  # Wait 10 minutes before the next attempt
                 is_ok = send_custom_metrics_request(
