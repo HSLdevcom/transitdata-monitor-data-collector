@@ -51,6 +51,9 @@ jobs:
   # --------------------
   build-java:
     uses: HSLdevcom/transitdata-shared-workflows/.github/workflows/ci-cd-java.yml@main
+    secrets:
+      DOCKER_USERNAME: ${{ secrets.TRANSITDATA_DOCKERHUB_USER }}
+      DOCKER_PASSWORD: ${{ secrets.TRANSITDATA_DOCKERHUB_TOKEN }}
     with:
       uploadJarArtifact: true
       jarArtifactName: "transitdata-metrics-exporter.jar"
@@ -66,7 +69,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: transitdata-metrics-exporter.jar
-          path: transitdata-metrics-exporter/build/libs
+          path: transitdata-metrics-exporter/target
       - name: Build and publish Java release Docker image
         uses: elgohr/Publish-Docker-Github-Action@v5
         with:
@@ -85,7 +88,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: transitdata-metrics-exporter.jar
-          path: transitdata-metrics-exporter/build/libs
+          path: transitdata-metrics-exporter/target
       - name: Build and publish Java aks-dev Docker image
         uses: elgohr/Publish-Docker-Github-Action@master
         with:
