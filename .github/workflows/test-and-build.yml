@@ -3,7 +3,10 @@ name: Test, Lint and create Docker image
 on: [push, pull_request]
 
 jobs:
-  build:
+  # --------------------
+  # Python
+  # --------------------
+  build-python:
     uses: HSLdevcom/transitdata-shared-workflows/.github/workflows/ci-cd-python.yml@main
     secrets:
       DOCKER_USERNAME: ${{ secrets.TRANSITDATA_DOCKERHUB_USER }}
@@ -11,7 +14,7 @@ jobs:
     with:
       runTests: false
 
-  build-aks-dev-docker-image:
+  build-python-aks-dev-docker-image:
     runs-on: ubuntu-latest
     # Run only on aks-dev branch
     if: github.ref == 'refs/heads/aks-dev'
@@ -40,6 +43,53 @@ jobs:
         uses: elgohr/Publish-Docker-Github-Action@master
         with:
           name: hsldevcom/transitdata-monitor-data-collector
+          username: ${{ secrets.TRANSITDATA_DOCKERHUB_USER }}
+          password: ${{ secrets.TRANSITDATA_DOCKERHUB_TOKEN }}
+          tags: aks-dev
+  # --------------------
+  # Java
+  # --------------------
+  build-java:
+    uses: HSLdevcom/transitdata-shared-workflows/.github/workflows/ci-cd-java.yml@main
+    with:
+      uploadJarArtifact: true
+      jarArtifactName: "transitdata-metrics-exporter.jar"
+      jarArtifactPath: "transitdata-metrics-exporter/target/transitdata-metrics-exporter.jar"
+
+  build-java-release-docker-image:
+    needs: build-java
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+    steps:
+      - uses: actions/checkout@v3
+      - name: Download .jar file
+        uses: actions/download-artifact@v4
+        with:
+          name: transitdata-metrics-exporter.jar
+          path: transitdata-metrics-exporter/build/libs
+      - name: Build and publish Java release Docker image
+        uses: elgohr/Publish-Docker-Github-Action@v5
+        with:
+          name: hsldevcom/transitdata-metrics-exporter
+          username: ${{ secrets.TRANSITDATA_DOCKERHUB_USER }}
+          password: ${{ secrets.TRANSITDATA_DOCKERHUB_TOKEN }}
+          tag_semver: true
+
+  build-java-aks-dev-docker-image:
+    needs: build-java
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/aks-dev'
+    steps:
+      - uses: actions/checkout@v3
+      - name: Download .jar file
+        uses: actions/download-artifact@v4
+        with:
+          name: transitdata-metrics-exporter.jar
+          path: transitdata-metrics-exporter/build/libs
+      - name: Build and publish Java aks-dev Docker image
+        uses: elgohr/Publish-Docker-Github-Action@master
+        with:
+          name: hsldevcom/transitdata-metrics-exporter
           username: ${{ secrets.TRANSITDATA_DOCKERHUB_USER }}
           password: ${{ secrets.TRANSITDATA_DOCKERHUB_TOKEN }}
           tags: aks-dev
