@@ -53,7 +53,7 @@ def send_data_to_azure_monitor(time, metric, url, value):
         send_custom_metrics_request(custom_metric_json, 3)
 
 
-    def main():
+def main():
     urls = os.getenv("GTFSRT_URLS").split(",")
     for url in urls:
         (entity_count, last_published_ago_secs) = get_stats(url)
