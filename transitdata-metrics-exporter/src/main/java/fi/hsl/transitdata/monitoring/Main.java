@@ -22,7 +22,7 @@ public class Main {
         var registry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
 
         httpServer.createContext("/metrics", new MetricsEndpoint(registry));
-        httpServer.createContext("/health", new HealthHandler());
+        httpServer.createContext("/health", new HealthEndpoint());
 
         var gtfsRtMetricsExporter = new GtfsRtMetricsExporter(config, registry);
 

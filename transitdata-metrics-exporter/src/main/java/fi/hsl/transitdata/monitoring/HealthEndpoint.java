@@ -5,7 +5,7 @@ import com.sun.net.httpserver.HttpHandler;
 
 import java.io.IOException;
 
-class HealthHandler implements HttpHandler {
+class HealthEndpoint implements HttpHandler {
 
     private static final byte[] RESPONSE = "OK".getBytes();
 
