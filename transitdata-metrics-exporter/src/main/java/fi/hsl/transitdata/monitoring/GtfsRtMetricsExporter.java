@@ -27,9 +27,7 @@ public class GtfsRtMetricsExporter {
 
     private static final Duration CLIENT_TIMEOUT = Duration.ofSeconds(5);
     private static final int NO_DELAY = 0;
-    private final HttpClient httpClient = HttpClient.newBuilder()
-            .connectTimeout(CLIENT_TIMEOUT)
-            .build();
+    private final HttpClient httpClient = HttpClient.newBuilder().connectTimeout(CLIENT_TIMEOUT).build();
 
     private final MeterRegistry registry;
     private final ScheduledExecutorService executorService = newScheduledThreadPool(1);
@@ -40,12 +38,8 @@ public class GtfsRtMetricsExporter {
         this.registry = registry;
         registerMetrics(config.gtfsrtUrls());
 
-        executorService.scheduleAtFixedRate(
-                () -> updateAllFeeds(config.gtfsrtUrls()),
-                NO_DELAY,
-                config.gtfsrtPollInterval().toMinutes(),
-                MINUTES
-        );
+        executorService.scheduleAtFixedRate(() -> updateAllFeeds(config.gtfsrtUrls()), NO_DELAY,
+                config.gtfsrtPollInterval().toMinutes(), MINUTES);
     }
 
     public void close() {
@@ -58,13 +52,10 @@ public class GtfsRtMetricsExporter {
             ageMap.put(url, new AtomicInteger(0));
 
             Gauge.builder("gtfsrt_entity_count", entityCountMap.get(url), AtomicInteger::get)
-                    .description("Number of GTFS-RT entities in the feed")
-                    .tag("url", url)
-                    .register(registry);
+                    .description("Number of GTFS-RT entities in the feed").tag("url", url).register(registry);
 
             Gauge.builder("gtfsrt_timestamp_age_seconds", ageMap.get(url), AtomicInteger::get)
-                    .description("Age in seconds of the GTFS-RT feed header timestamp")
-                    .tag("url", url)
+                    .description("Age in seconds of the GTFS-RT feed header timestamp").tag("url", url)
                     .register(registry);
         });
     }
@@ -75,10 +66,7 @@ public class GtfsRtMetricsExporter {
 
     private void updateFeed(String url) {
         try {
-            var req = newBuilder().GET()
-                    .uri(URI.create(url))
-                    .timeout(CLIENT_TIMEOUT)
-                    .build();
+            var req = newBuilder().GET().uri(URI.create(url)).timeout(CLIENT_TIMEOUT).build();
 
             var resp = httpClient.send(req, BodyHandlers.ofByteArray());
             if (resp.statusCode() != 200) {
