@@ -6,6 +6,7 @@ import io.micrometer.prometheusmetrics.PrometheusMeterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
@@ -20,13 +21,8 @@ public class Main {
         var httpServer = HttpServer.create(new InetSocketAddress(config.port()), 0);
         var registry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
 
-        httpServer.createContext("/metrics", exchange -> {
-            var response = registry.scrape();
-            exchange.sendResponseHeaders(200, response.getBytes().length);
-            try (var os = exchange.getResponseBody()) {
-                os.write(response.getBytes());
-            }
-        });
+        httpServer.createContext("/metrics", new MetricsEndpoint(registry));
+        httpServer.createContext("/health", new HealthHandler());
 
         var gtfsRtMetricsExporter = new GtfsRtMetricsExporter(config, registry);
 
@@ -37,9 +33,17 @@ public class Main {
         LOG.info("Application started on port {}", config.port());
     }
 
-    private static void close(GtfsRtMetricsExporter gtfsRtMetricsExporter) {
+    private static void close(Closeable... closeables) {
         try {
-            gtfsRtMetricsExporter.close();
+            if (closeables != null) {
+                for (var closeable : closeables) {
+                    try {
+                        closeable.close();
+                    } catch (IOException ex) {
+                        LOG.warn("Failed to close {}", closeable.getClass().getSimpleName(), ex);
+                    }
+                }
+            }
 
             LOG.info("Application closed");
         } catch (Exception ex) {

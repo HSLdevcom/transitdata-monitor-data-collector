@@ -5,6 +5,7 @@ import io.micrometer.core.instrument.MeterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Closeable;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.time.Duration;
@@ -21,7 +22,7 @@ import static java.time.Instant.now;
 import static java.util.concurrent.Executors.newScheduledThreadPool;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
-public class GtfsRtMetricsExporter {
+class GtfsRtMetricsExporter implements Closeable {
 
     private static final Logger LOG = LoggerFactory.getLogger(GtfsRtMetricsExporter.class);
 
@@ -42,6 +43,7 @@ public class GtfsRtMetricsExporter {
                 config.gtfsrtPollInterval().toMinutes(), MINUTES);
     }
 
+    @Override
     public void close() {
         executorService.close();
     }

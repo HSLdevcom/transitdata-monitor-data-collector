@@ -7,7 +7,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.function.Function;
 
-public record AppConfig(int port, List<String> gtfsrtUrls, Duration gtfsrtPollInterval) {
+record AppConfig(int port, List<String> gtfsrtUrls, Duration gtfsrtPollInterval) {
 
     public static AppConfig parseFrom(String configurationFile) {
         var config = ConfigFactory.parseResources(configurationFile).resolve();
