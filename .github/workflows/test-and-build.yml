@@ -7,7 +7,7 @@ jobs:
   # Python
   # --------------------
   build-python:
-    uses: HSLdevcom/transitdata-shared-workflows/.github/workflows/ci-cd-python.yml@feature/57139_gtfsrt-metric-exporter
+    uses: HSLdevcom/transitdata-shared-workflows/.github/workflows/ci-cd-python.yml@main
     secrets:
       DOCKER_USERNAME: ${{ secrets.TRANSITDATA_DOCKERHUB_USER }}
       DOCKER_PASSWORD: ${{ secrets.TRANSITDATA_DOCKERHUB_TOKEN }}
@@ -50,7 +50,7 @@ jobs:
   # Java
   # --------------------
   build-java:
-    uses: HSLdevcom/transitdata-shared-workflows/.github/workflows/ci-cd-java.yml@main
+    uses: HSLdevcom/transitdata-shared-workflows/.github/workflows/ci-cd-java.yml@feature/57139_gtfsrt-metric-exporter
     secrets:
       DOCKER_USERNAME: ${{ secrets.TRANSITDATA_DOCKERHUB_USER }}
       DOCKER_PASSWORD: ${{ secrets.TRANSITDATA_DOCKERHUB_TOKEN }}
