@@ -59,7 +59,6 @@ jobs:
       jarArtifactName: "transitdata-metrics-exporter.jar"
       jarArtifactPath: "transitdata-metrics-exporter/target/transitdata-metrics-exporter.jar"
       workingDirectory: "transitdata-metrics-exporter"
-      javaVersion: '25'
 
   build-java-release-docker-image:
     needs: build-java
