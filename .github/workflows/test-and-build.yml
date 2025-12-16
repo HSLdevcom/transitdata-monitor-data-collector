@@ -3,15 +3,18 @@ name: Test, Lint and create Docker image
 on: [push, pull_request]
 
 jobs:
-  build:
-    uses: HSLdevcom/transitdata-shared-workflows/.github/workflows/ci-cd-python.yml@main
+  # --------------------
+  # Python
+  # --------------------
+  build-python:
+    uses: HSLdevcom/transitdata-shared-workflows/.github/workflows/ci-cd-python.yml@1.0.0
     secrets:
       DOCKER_USERNAME: ${{ secrets.TRANSITDATA_DOCKERHUB_USER }}
       DOCKER_PASSWORD: ${{ secrets.TRANSITDATA_DOCKERHUB_TOKEN }}
     with:
       runTests: false
 
-  build-aks-dev-docker-image:
+  build-python-aks-dev-docker-image:
     runs-on: ubuntu-latest
     # Run only on aks-dev branch
     if: github.ref == 'refs/heads/aks-dev'
@@ -43,3 +46,17 @@ jobs:
           username: ${{ secrets.TRANSITDATA_DOCKERHUB_USER }}
           password: ${{ secrets.TRANSITDATA_DOCKERHUB_TOKEN }}
           tags: aks-dev
+  # --------------------
+  # Java
+  # --------------------
+  java:
+    uses: HSLdevcom/transitdata-shared-workflows/.github/workflows/ci-cd-java.yml@1.0.0
+    secrets:
+      DOCKER_USERNAME: ${{ secrets.TRANSITDATA_DOCKERHUB_USER }}
+      DOCKER_PASSWORD: ${{ secrets.TRANSITDATA_DOCKERHUB_TOKEN }}
+    with:
+      uploadJarArtifact: true
+      workingDirectory: "transitdata-metrics-exporter"
+      jarArtifactName: "transitdata-metrics-exporter.jar"
+      jarArtifactPath: "transitdata-metrics-exporter/target/transitdata-metrics-exporter.jar"
+      performRelease: true

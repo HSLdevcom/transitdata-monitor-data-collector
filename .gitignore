@@ -2,3 +2,7 @@
 access_token.txt
 .idea
 __pycache__
+
+transitdata-metrics-exporter/target/
+transitdata-metrics-exporter/.mvn/wrapper/maven-wrapper.jar
+transitdata-metrics-exporter/dependency-reduced-pom.xml
