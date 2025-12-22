@@ -3,9 +3,6 @@ name: Test, Lint and create Docker image
 on: [push, pull_request]
 
 jobs:
-  # --------------------
-  # Python
-  # --------------------
   python:
     uses: HSLdevcom/transitdata-shared-workflows/.github/workflows/ci-cd-python.yml@1.0.1
     secrets:
@@ -13,43 +10,7 @@ jobs:
       DOCKER_PASSWORD: ${{ secrets.TRANSITDATA_DOCKERHUB_TOKEN }}
     with:
       runTests: false
-      performRelease: true
 
-#  build-python-aks-dev-docker-image:
-#    runs-on: ubuntu-latest
-#    # Run only on aks-dev branch
-#    if: github.ref == 'refs/heads/aks-dev'
-#    steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v2
-#
-#      - name: Set up Python
-#        uses: actions/setup-python@v2
-#        with:
-#          python-version: '3.x'
-#
-#      - name: Install dependencies
-#        run: |
-#          python -m pip install --upgrade pip
-#          pip install -r requirements.txt
-#          pip install ruff
-#
-#      - name: Run Ruff lint
-#        run: ruff check . --output-format=github
-#
-#      - name: Run Ruff format check
-#        run: ruff format . --check
-#
-#      - name: Build and publish aks-dev Docker image
-#        uses: elgohr/Publish-Docker-Github-Action@master
-#        with:
-#          name: hsldevcom/transitdata-monitor-data-collector
-#          username: ${{ secrets.TRANSITDATA_DOCKERHUB_USER }}
-#          password: ${{ secrets.TRANSITDATA_DOCKERHUB_TOKEN }}
-#          tags: aks-dev
-  # --------------------
-  # Java
-  # --------------------
   java:
     uses: HSLdevcom/transitdata-shared-workflows/.github/workflows/ci-cd-java.yml@1.0.1
     secrets:
