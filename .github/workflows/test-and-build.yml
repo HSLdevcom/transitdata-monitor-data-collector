@@ -12,7 +12,7 @@ jobs:
       runTests: false
 
   java:
-    uses: HSLdevcom/transitdata-shared-workflows/.github/workflows/ci-cd-java.yml@1.0.1
+    uses: HSLdevcom/transitdata-shared-workflows/.github/workflows/ci-cd-java.yml@feature/57139_gtfsrt-metric-exporter-override-image-name
     secrets:
       DOCKER_USERNAME: ${{ secrets.TRANSITDATA_DOCKERHUB_USER }}
       DOCKER_PASSWORD: ${{ secrets.TRANSITDATA_DOCKERHUB_TOKEN }}
