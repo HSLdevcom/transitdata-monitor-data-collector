@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   python:
-    uses: HSLdevcom/transitdata-shared-workflows/.github/workflows/ci-cd-python.yml@1.0.1
+    uses: HSLdevcom/transitdata-shared-workflows/.github/workflows/ci-cd-python.yml@1.0.2
     secrets:
       DOCKER_USERNAME: ${{ secrets.TRANSITDATA_DOCKERHUB_USER }}
       DOCKER_PASSWORD: ${{ secrets.TRANSITDATA_DOCKERHUB_TOKEN }}
@@ -12,12 +12,13 @@ jobs:
       runTests: false
 
   java:
-    uses: HSLdevcom/transitdata-shared-workflows/.github/workflows/ci-cd-java.yml@1.0.1
+    uses: HSLdevcom/transitdata-shared-workflows/.github/workflows/ci-cd-java.yml@1.0.2
     secrets:
       DOCKER_USERNAME: ${{ secrets.TRANSITDATA_DOCKERHUB_USER }}
       DOCKER_PASSWORD: ${{ secrets.TRANSITDATA_DOCKERHUB_TOKEN }}
     with:
       uploadJarArtifact: true
       workingDirectory: "transitdata-metrics-exporter"
+      imageName: "transitdata-metrics-exporter"
       jarArtifactName: "transitdata-metrics-exporter.jar"
       jarArtifactPath: "transitdata-metrics-exporter/target/transitdata-metrics-exporter.jar"
