@@ -19,5 +19,6 @@ jobs:
     with:
       uploadJarArtifact: true
       workingDirectory: "transitdata-metrics-exporter"
+      imageName: "transitdata-metrics-exporter"
       jarArtifactName: "transitdata-metrics-exporter.jar"
       jarArtifactPath: "transitdata-metrics-exporter/target/transitdata-metrics-exporter.jar"
