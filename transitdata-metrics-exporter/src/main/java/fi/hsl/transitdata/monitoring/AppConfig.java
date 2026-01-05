@@ -2,12 +2,19 @@ package fi.hsl.transitdata.monitoring;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import fi.hsl.transitdata.monitoring.mqtt.MqttBrokerConfig;
 
 import java.time.Duration;
 import java.util.List;
 import java.util.function.Function;
 
-record AppConfig(int port, List<String> gtfsRtUrls, Duration gtfsRtPollInterval, Duration gtfsRtClientTimeout) {
+record AppConfig(int port,
+                 List<String> gtfsRtUrls,
+                 Duration gtfsRtPollInterval,
+                 Duration gtfsRtClientTimeout,
+                 Duration mqttConnectionTimeout,
+                 Duration mqttKeepAliveInterval,
+                 List<MqttBrokerConfig> mqttBrokers) {
 
     public static AppConfig parseFrom(String configurationFile) {
         var config = ConfigFactory.parseResources(configurationFile).resolve();
@@ -19,8 +26,26 @@ record AppConfig(int port, List<String> gtfsRtUrls, Duration gtfsRtPollInterval,
         var gtfsRtUrls = List.of((getRequired(config, "gtfsrt.urls", config::getString)).split(","));
         var gtfsRtPollInterval = Duration.parse(getRequired(config, "gtfsrt.pollInterval", config::getString));
         var gtfsRtClientTimeout = Duration.parse(getRequired(config, "gtfsrt.clientTimeout", config::getString));
+        var mqttConnectionTimeout = Duration.parse(getRequired(config, "mqtt.connectionTimeout", config::getString));
+        var mqttKeepAliveInterval = Duration.parse(getRequired(config, "mqtt.keepAliveInterval", config::getString));
+        var mqttBrokers = parseMqttBrokers(config);
 
-        return new AppConfig(port, gtfsRtUrls, gtfsRtPollInterval, gtfsRtClientTimeout);
+        return new AppConfig(port, gtfsRtUrls, gtfsRtPollInterval, gtfsRtClientTimeout,
+                mqttConnectionTimeout, mqttKeepAliveInterval, mqttBrokers);
+    }
+
+    private static List<MqttBrokerConfig> parseMqttBrokers(Config config) {
+        if (!config.hasPath("mqtt.brokers")) {
+            return List.of();
+        }
+
+        return config.getConfigList("mqtt.brokers").stream()
+                .map(brokerConfig -> new MqttBrokerConfig(
+                        brokerConfig.getString("address"),
+                        brokerConfig.getInt("port"),
+                        brokerConfig.getStringList("topicFilters")
+                ))
+                .toList();
     }
 
     private static <T> T getRequired(Config config, String path, Function<String, T> f) {

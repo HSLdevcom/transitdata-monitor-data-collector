@@ -7,7 +7,7 @@
     <module name="transitdata-metrics-exporter" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="fi.hsl.transitdata.monitoring.*" />
+        <option name="PATTERN" value="fi.hsl.transitdata.monitoring.mqtt.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>
