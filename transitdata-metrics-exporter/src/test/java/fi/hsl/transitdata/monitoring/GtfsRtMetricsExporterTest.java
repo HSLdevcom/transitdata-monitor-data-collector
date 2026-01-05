@@ -90,10 +90,8 @@ class GtfsRtMetricsExporterTest {
         exporter.updateFeed(TEST_URL);
 
         // then
-        var successCounter = meterRegistry.find("gtfsrt_scrape_attempts_total")
-                .tag("url", TEST_URL)
-                .tag("result", "success")
-                .counter();
+        var successCounter = meterRegistry.find("gtfsrt_scrape_attempts_total").tag("url", TEST_URL)
+                .tag("result", "success").counter();
 
         assertThat(successCounter).isNotNull();
         assertThat(successCounter.count()).isEqualTo(1.0);
@@ -112,14 +110,10 @@ class GtfsRtMetricsExporterTest {
         exporter.updateFeed(TEST_URL);
 
         // then
-        var failureCounter = meterRegistry.find("gtfsrt_scrape_attempts_total")
-                .tag("url", TEST_URL)
-                .tag("result", "http_404")
-                .counter();
+        var failureCounter = meterRegistry.find("gtfsrt_scrape_attempts_total").tag("url", TEST_URL)
+                .tag("result", "http_404").counter();
 
-        var lastScrapeSuccess = meterRegistry.find("gtfsrt_last_scrape_success")
-                .tag("url", TEST_URL)
-                .gauge();
+        var lastScrapeSuccess = meterRegistry.find("gtfsrt_last_scrape_success").tag("url", TEST_URL).gauge();
 
         assertThat(failureCounter).isNotNull();
         assertThat(failureCounter.count()).isEqualTo(1.0);
@@ -140,14 +134,10 @@ class GtfsRtMetricsExporterTest {
         exporter.updateFeed(TEST_URL);
 
         // then
-        var parseErrorCounter = meterRegistry.find("gtfsrt_scrape_attempts_total")
-                .tag("url", TEST_URL)
-                .tag("result", "parse_error")
-                .counter();
+        var parseErrorCounter = meterRegistry.find("gtfsrt_scrape_attempts_total").tag("url", TEST_URL)
+                .tag("result", "parse_error").counter();
 
-        var lastScrapeSuccess = meterRegistry.find("gtfsrt_last_scrape_success")
-                .tag("url", TEST_URL)
-                .gauge();
+        var lastScrapeSuccess = meterRegistry.find("gtfsrt_last_scrape_success").tag("url", TEST_URL).gauge();
 
         assertThat(parseErrorCounter).isNotNull();
         assertThat(parseErrorCounter.count()).isEqualTo(1.0);
@@ -166,14 +156,10 @@ class GtfsRtMetricsExporterTest {
         exporter.updateFeed(TEST_URL);
 
         // then
-        var ioErrorCounter = meterRegistry.find("gtfsrt_scrape_attempts_total")
-                .tag("url", TEST_URL)
-                .tag("result", "io_error")
-                .counter();
+        var ioErrorCounter = meterRegistry.find("gtfsrt_scrape_attempts_total").tag("url", TEST_URL)
+                .tag("result", "io_error").counter();
 
-        var lastScrapeSuccess = meterRegistry.find("gtfsrt_last_scrape_success")
-                .tag("url", TEST_URL)
-                .gauge();
+        var lastScrapeSuccess = meterRegistry.find("gtfsrt_last_scrape_success").tag("url", TEST_URL).gauge();
 
         assertThat(ioErrorCounter).isNotNull();
         assertThat(ioErrorCounter.count()).isEqualTo(1.0);
@@ -192,14 +178,10 @@ class GtfsRtMetricsExporterTest {
         exporter.updateFeed(TEST_URL);
 
         // then
-        var unknownErrorCounter = meterRegistry.find("gtfsrt_scrape_attempts_total")
-                .tag("url", TEST_URL)
-                .tag("result", "unknown_error")
-                .counter();
+        var unknownErrorCounter = meterRegistry.find("gtfsrt_scrape_attempts_total").tag("url", TEST_URL)
+                .tag("result", "unknown_error").counter();
 
-        var lastScrapeSuccess = meterRegistry.find("gtfsrt_last_scrape_success")
-                .tag("url", TEST_URL)
-                .gauge();
+        var lastScrapeSuccess = meterRegistry.find("gtfsrt_last_scrape_success").tag("url", TEST_URL).gauge();
 
         assertThat(unknownErrorCounter).isNotNull();
         assertThat(unknownErrorCounter.count()).isEqualTo(1.0);
@@ -221,9 +203,7 @@ class GtfsRtMetricsExporterTest {
         exporter.updateFeed(TEST_URL);
 
         // then
-        var lastScrapeSuccess = meterRegistry.find("gtfsrt_last_scrape_success")
-                .tag("url", TEST_URL)
-                .gauge();
+        var lastScrapeSuccess = meterRegistry.find("gtfsrt_last_scrape_success").tag("url", TEST_URL).gauge();
 
         assertThat(lastScrapeSuccess).isNotNull();
         assertThat(lastScrapeSuccess.value()).isEqualTo(1.0);
@@ -247,13 +227,9 @@ class GtfsRtMetricsExporterTest {
         exporter.updateFeed(TEST_URL);
 
         // then
-        var entityCountSummary = meterRegistry.find("gtfsrt_entity_count")
-                .tag("url", TEST_URL)
-                .summary();
+        var entityCountSummary = meterRegistry.find("gtfsrt_entity_count").tag("url", TEST_URL).summary();
 
-        var timestampAgeSummary = meterRegistry.find("gtfsrt_timestamp_age_seconds")
-                .tag("url", TEST_URL)
-                .summary();
+        var timestampAgeSummary = meterRegistry.find("gtfsrt_timestamp_age_seconds").tag("url", TEST_URL).summary();
 
         assertThat(entityCountSummary).isNotNull();
         assertThat(entityCountSummary.count()).isEqualTo(1);
@@ -262,8 +238,7 @@ class GtfsRtMetricsExporterTest {
         assertThat(timestampAgeSummary).isNotNull();
         assertThat(timestampAgeSummary.count()).isEqualTo(1);
 
-        assertThat(timestampAgeSummary.totalAmount())
-                .isCloseTo(10d, offset(1d));
+        assertThat(timestampAgeSummary.totalAmount()).isCloseTo(10d, offset(1d));
     }
 
     @Test
@@ -279,9 +254,7 @@ class GtfsRtMetricsExporterTest {
         var feedMessage2 = createValidFeedMessage(200, System.currentTimeMillis() / 1000);
 
         when(httpResponse.statusCode()).thenReturn(200);
-        when(httpResponse.body())
-                .thenReturn(feedMessage1.toByteArray())
-                .thenReturn(feedMessage2.toByteArray());
+        when(httpResponse.body()).thenReturn(feedMessage1.toByteArray()).thenReturn(feedMessage2.toByteArray());
         when(httpClient.send(any(HttpRequest.class), eq(HttpResponse.BodyHandlers.ofByteArray())))
                 .thenReturn(httpResponse);
 
@@ -315,20 +288,14 @@ class GtfsRtMetricsExporterTest {
         exporter.updateFeed(TEST_URL);
 
         // then
-        var http404Counter = meterRegistry.find("gtfsrt_scrape_attempts_total")
-                .tag("url", TEST_URL)
-                .tag("result", "http_404")
-                .counter();
+        var http404Counter = meterRegistry.find("gtfsrt_scrape_attempts_total").tag("url", TEST_URL)
+                .tag("result", "http_404").counter();
 
-        var http500Counter = meterRegistry.find("gtfsrt_scrape_attempts_total")
-                .tag("url", TEST_URL)
-                .tag("result", "http_500")
-                .counter();
+        var http500Counter = meterRegistry.find("gtfsrt_scrape_attempts_total").tag("url", TEST_URL)
+                .tag("result", "http_500").counter();
 
-        var http503Counter = meterRegistry.find("gtfsrt_scrape_attempts_total")
-                .tag("url", TEST_URL)
-                .tag("result", "http_503")
-                .counter();
+        var http503Counter = meterRegistry.find("gtfsrt_scrape_attempts_total").tag("url", TEST_URL)
+                .tag("result", "http_503").counter();
 
         assertThat(http404Counter.count()).isEqualTo(1.0);
         assertThat(http500Counter.count()).isEqualTo(1.0);
@@ -336,17 +303,12 @@ class GtfsRtMetricsExporterTest {
     }
 
     private FeedMessage createValidFeedMessage(int entityCount, long timestamp) {
-        var header = FeedHeader.newBuilder()
-                .setGtfsRealtimeVersion("2.0")
-                .setTimestamp(timestamp)
-                .build();
+        var header = FeedHeader.newBuilder().setGtfsRealtimeVersion("2.0").setTimestamp(timestamp).build();
 
         var builder = FeedMessage.newBuilder().setHeader(header);
 
         for (int i = 0; i < entityCount; i++) {
-            builder.addEntity(FeedEntity.newBuilder()
-                    .setId("entity_" + i)
-                    .build());
+            builder.addEntity(FeedEntity.newBuilder().setId("entity_" + i).build());
         }
 
         return builder.build();

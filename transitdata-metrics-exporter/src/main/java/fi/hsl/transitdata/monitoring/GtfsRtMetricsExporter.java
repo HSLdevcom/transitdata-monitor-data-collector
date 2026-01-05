@@ -26,10 +26,8 @@ class GtfsRtMetricsExporter implements Closeable {
     private final GtfsRtMetricsRegistry registry;
     private final ScheduledExecutorService executor;
 
-    public GtfsRtMetricsExporter(AppConfig config,
-                                 HttpClient httpClient,
-                                 GtfsRtMetricsRegistry registry,
-                                 ScheduledExecutorService executor) {
+    public GtfsRtMetricsExporter(AppConfig config, HttpClient httpClient, GtfsRtMetricsRegistry registry,
+            ScheduledExecutorService executor) {
         this.config = config;
         this.httpClient = httpClient;
         this.registry = registry;
@@ -49,10 +47,7 @@ class GtfsRtMetricsExporter implements Closeable {
 
     void updateFeed(String url) {
         try {
-            var req = newBuilder().GET()
-                    .uri(URI.create(url))
-                    .timeout(config.gtfsRtClientTimeout())
-                    .build();
+            var req = newBuilder().GET().uri(URI.create(url)).timeout(config.gtfsRtClientTimeout()).build();
 
             var resp = httpClient.send(req, BodyHandlers.ofByteArray());
             if (resp.statusCode() != 200) {

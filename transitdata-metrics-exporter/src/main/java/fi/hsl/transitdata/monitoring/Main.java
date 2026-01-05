@@ -35,10 +35,9 @@ public class Main {
         LOG.info("Application started on port {}", config.port());
     }
 
-    private static GtfsRtMetricsExporter createGtfsRtMetricsExporter(AppConfig config, PrometheusMeterRegistry registry) {
-        var httpClient = HttpClient.newBuilder()
-                .connectTimeout(config.gtfsRtClientTimeout())
-                .build();
+    private static GtfsRtMetricsExporter createGtfsRtMetricsExporter(AppConfig config,
+            PrometheusMeterRegistry registry) {
+        var httpClient = HttpClient.newBuilder().connectTimeout(config.gtfsRtClientTimeout()).build();
         var gtfsRtMetricsRegistry = new GtfsRtMetricsRegistry(registry, config.gtfsRtUrls());
         var executor = newScheduledThreadPool(config.gtfsRtUrls().size());
 
