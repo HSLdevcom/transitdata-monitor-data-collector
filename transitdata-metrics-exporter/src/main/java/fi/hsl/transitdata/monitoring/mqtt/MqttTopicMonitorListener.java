@@ -12,8 +12,13 @@ import org.slf4j.LoggerFactory;
 import java.io.Closeable;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 
 import static fi.hsl.transitdata.monitoring.mqtt.MqttTopicFilterMatcher.findMatchingTopicFilter;
+import static java.util.concurrent.CompletableFuture.delayedExecutor;
+import static java.util.concurrent.CompletableFuture.runAsync;
+import static java.util.concurrent.Executors.newSingleThreadExecutor;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class MqttTopicMonitorListener implements MqttCallback, Closeable {
 
@@ -22,11 +27,13 @@ public class MqttTopicMonitorListener implements MqttCallback, Closeable {
     private final MqttClient client;
     private final String[] topicFilters;
     private final MeterRegistry registry;
+    private final ExecutorService resubscriptionExecutor;
 
     public MqttTopicMonitorListener(MqttClient client, List<String> topicFilters, MeterRegistry registry) {
         this.client = client;
         this.topicFilters = topicFilters.toArray(new String[0]);
         this.registry = registry;
+        this.resubscriptionExecutor = newSingleThreadExecutor();
 
         Gauge.builder("mqtt_connected", client, c -> c.isConnected() ? 1.0 : 0.0)
                 .description("MQTT connection status (1 = connected, 0 = disconnected)")
@@ -49,8 +56,29 @@ public class MqttTopicMonitorListener implements MqttCallback, Closeable {
 
     @Override
     public void connectionLost(Throwable cause) {
-        LOG.warn("Disconnected from {}: {}", client.getBrokerAddress(), cause == null ? "unknown" : cause.getMessage(),
+        LOG.warn("Connection lost from {}: {}", client.getBrokerAddress(), cause == null ? "unknown" : cause.getMessage(),
                 cause);
+        scheduleResubscription();
+    }
+
+    private void scheduleResubscription() {
+        delayedExecutor(60, SECONDS, resubscriptionExecutor).execute(() -> {
+            if (client.isConnected()) {
+                LOG.info("Reconnected to {}, attempting to re-subscribe", client.getBrokerAddress());
+
+                client.subscribe(topicFilters)
+                        .thenAccept(ignored -> LOG.info("Successfully re-subscribed to topics on {}",
+                                client.getBrokerAddress()))
+                        .exceptionally(ex -> {
+                            LOG.warn("Re-subscription failed for {}: {}", client.getBrokerAddress(), ex.getMessage());
+                            scheduleResubscription();
+                            return null;
+                        });
+            } else {
+                LOG.info("Not yet reconnected to {}, will retry re-subscription", client.getBrokerAddress());
+                scheduleResubscription();
+            }
+        });
     }
 
     @Override
@@ -73,17 +101,25 @@ public class MqttTopicMonitorListener implements MqttCallback, Closeable {
     @Override
     public void close() {
         try {
+            resubscriptionExecutor.shutdown();
+
             client.unsubscribe(topicFilters)
-                    .thenRun(client::disconnect)
-                    .exceptionally(ex -> {
+                    .thenRunAsync(client::disconnect)
+                    .exceptionallyAsync(ex -> {
                         LOG.warn("Error during unsubscribe, disconnecting anyway: {}", ex.getMessage());
-                        client.disconnect();
+                        runAsync(client::disconnect).join();
                         return null;
                     })
                     .join();
+
+            if (!resubscriptionExecutor.awaitTermination(5, SECONDS)) {
+                LOG.warn("Re-subscription executor did not terminate, forcing shutdown");
+                resubscriptionExecutor.shutdownNow();
+            }
         } catch (Exception ex) {
             LOG.warn("Error during close, forcing disconnect: {}", ex.getMessage());
-            client.disconnect();
+            runAsync(client::disconnect).join();
+            resubscriptionExecutor.shutdownNow();
         }
     }
 }
