@@ -1,7 +1,6 @@
 package fi.hsl.transitdata.monitoring;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import io.micrometer.core.instrument.MeterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,7 +8,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
-import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -17,51 +15,51 @@ import static com.google.transit.realtime.GtfsRealtime.FeedMessage;
 import static java.net.http.HttpRequest.newBuilder;
 import static java.net.http.HttpResponse.BodyHandlers;
 import static java.time.Instant.now;
-import static java.util.concurrent.Executors.newScheduledThreadPool;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 class GtfsRtMetricsExporter implements Closeable {
 
     private static final Logger LOG = LoggerFactory.getLogger(GtfsRtMetricsExporter.class);
 
-    private static final Duration CLIENT_TIMEOUT = Duration.ofSeconds(5);
     private static final int NO_DELAY = 0;
-    private final HttpClient httpClient = HttpClient.newBuilder()
-            .connectTimeout(CLIENT_TIMEOUT)
-            .build();
 
-    private final GtfsRtMetricsRegistry metricsRegistry;
-    private final ScheduledExecutorService executorService;
+    private final AppConfig config;
+    private final HttpClient httpClient;
+    private final GtfsRtMetricsRegistry registry;
+    private final ScheduledExecutorService executor;
 
-    public GtfsRtMetricsExporter(AppConfig config, MeterRegistry registry) {
-        this.metricsRegistry = new GtfsRtMetricsRegistry(registry, config.gtfsrtUrls());
-        this.executorService = newScheduledThreadPool(config.gtfsrtUrls().size());
-
-        executorService.scheduleAtFixedRate(() -> updateAllFeeds(config.gtfsrtUrls()), NO_DELAY,
-                config.gtfsrtPollInterval().toMinutes(), MINUTES);
+    public GtfsRtMetricsExporter(AppConfig config,
+                                 HttpClient httpClient,
+                                 GtfsRtMetricsRegistry registry,
+                                 ScheduledExecutorService executor) {
+        this.config = config;
+        this.httpClient = httpClient;
+        this.registry = registry;
+        this.executor = executor;
+        executor.scheduleAtFixedRate(() -> updateAllFeeds(config.gtfsRtUrls()), NO_DELAY,
+                config.gtfsRtPollInterval().toMinutes(), MINUTES);
     }
 
     @Override
     public void close() {
-        executorService.close();
+        executor.close();
     }
 
     private void updateAllFeeds(List<String> urls) {
         urls.forEach(this::updateFeed);
     }
 
-    private void updateFeed(String url) {
+    void updateFeed(String url) {
         try {
-            var req = newBuilder()
-                    .GET()
+            var req = newBuilder().GET()
                     .uri(URI.create(url))
-                    .timeout(CLIENT_TIMEOUT)
+                    .timeout(config.gtfsRtClientTimeout())
                     .build();
 
             var resp = httpClient.send(req, BodyHandlers.ofByteArray());
             if (resp.statusCode() != 200) {
                 LOG.error("Failed to update feed for url {}, response is {}", url, resp.statusCode());
-                metricsRegistry.recordFailedScrape(url, "http_" + resp.statusCode());
+                registry.recordFailedScrape(url, "http_" + resp.statusCode());
                 return;
             }
 
@@ -70,18 +68,18 @@ class GtfsRtMetricsExporter implements Closeable {
             var feedTs = feed.getHeader().getTimestamp();
             var age = now().getEpochSecond() - feedTs;
 
-            metricsRegistry.recordSuccessfulScrape(url, entityCount, (int) age);
+            registry.recordSuccessfulScrape(url, entityCount, (int) age);
 
             LOG.debug("Updated metrics for {} — entities={}, age={}s", url, entityCount, age);
         } catch (InvalidProtocolBufferException ex) {
             LOG.error("Failed to parse feed for url {}", url, ex);
-            metricsRegistry.recordFailedScrape(url, "parse_error");
+            registry.recordFailedScrape(url, "parse_error");
         } catch (IOException ex) {
             LOG.error("IO error while updating feed for url {}", url, ex);
-            metricsRegistry.recordFailedScrape(url, "io_error");
+            registry.recordFailedScrape(url, "io_error");
         } catch (Exception ex) {
             LOG.error("Failed to update feed for url {}", url, ex);
-            metricsRegistry.recordFailedScrape(url, "unknown_error");
+            registry.recordFailedScrape(url, "unknown_error");
         }
     }
 }

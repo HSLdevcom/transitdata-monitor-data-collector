@@ -7,7 +7,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.function.Function;
 
-record AppConfig(int port, List<String> gtfsrtUrls, Duration gtfsrtPollInterval) {
+record AppConfig(int port, List<String> gtfsRtUrls, Duration gtfsRtPollInterval, Duration gtfsRtClientTimeout) {
 
     public static AppConfig parseFrom(String configurationFile) {
         var config = ConfigFactory.parseResources(configurationFile).resolve();
@@ -16,10 +16,11 @@ record AppConfig(int port, List<String> gtfsrtUrls, Duration gtfsrtPollInterval)
 
     private static AppConfig buildFrom(Config config) {
         var port = getRequired(config, "port", config::getInt);
-        var gtfsrtUrls = List.of((getRequired(config, "gtfsrt.urls", config::getString)).split(","));
-        var gtfsrtPollInterval = Duration.parse(getRequired(config, "gtfsrt.pollInterval", config::getString));
+        var gtfsRtUrls = List.of((getRequired(config, "gtfsrt.urls", config::getString)).split(","));
+        var gtfsRtPollInterval = Duration.parse(getRequired(config, "gtfsrt.pollInterval", config::getString));
+        var gtfsRtClientTimeout = Duration.parse(getRequired(config, "gtfsrt.clientTimeout", config::getString));
 
-        return new AppConfig(port, gtfsrtUrls, gtfsrtPollInterval);
+        return new AppConfig(port, gtfsRtUrls, gtfsRtPollInterval, gtfsRtClientTimeout);
     }
 
     private static <T> T getRequired(Config config, String path, Function<String, T> f) {

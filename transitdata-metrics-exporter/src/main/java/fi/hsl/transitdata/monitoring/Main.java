@@ -9,8 +9,10 @@ import org.slf4j.LoggerFactory;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.http.HttpClient;
 
 import static java.lang.Runtime.getRuntime;
+import static java.util.concurrent.Executors.newScheduledThreadPool;
 
 public class Main {
 
@@ -24,13 +26,23 @@ public class Main {
         httpServer.createContext("/metrics", new MetricsEndpoint(registry));
         httpServer.createContext("/health", new HealthEndpoint());
 
-        var gtfsRtMetricsExporter = new GtfsRtMetricsExporter(config, registry);
+        var gtfsRtMetricsExporter = createGtfsRtMetricsExporter(config, registry);
 
         httpServer.start();
 
         getRuntime().addShutdownHook(new Thread(() -> close(gtfsRtMetricsExporter)));
 
         LOG.info("Application started on port {}", config.port());
+    }
+
+    private static GtfsRtMetricsExporter createGtfsRtMetricsExporter(AppConfig config, PrometheusMeterRegistry registry) {
+        var httpClient = HttpClient.newBuilder()
+                .connectTimeout(config.gtfsRtClientTimeout())
+                .build();
+        var gtfsRtMetricsRegistry = new GtfsRtMetricsRegistry(registry, config.gtfsRtUrls());
+        var executor = newScheduledThreadPool(config.gtfsRtUrls().size());
+
+        return new GtfsRtMetricsExporter(config, httpClient, gtfsRtMetricsRegistry, executor);
     }
 
     private static void close(Closeable... closeables) {
