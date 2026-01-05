@@ -24,17 +24,23 @@ public class GtfsRtMetricsRegistry {
 
     private void registerMetrics(List<String> urls) {
         urls.forEach(url -> {
-            entityCount.put(url, DistributionSummary.builder("gtfsrt_entity_count")
-                    .description("Number of GTFS-RT entities in the feed").tag("url", url).register(registry));
+            entityCount.put(url,
+                    DistributionSummary.builder("gtfsrt_entity_count")
+                            .description("Number of GTFS-RT entities in the feed")
+                            .tag("url", url)
+                            .register(registry));
 
             timestampAge.put(url,
                     DistributionSummary.builder("gtfsrt_timestamp_age_seconds")
-                            .description("Age in seconds of the GTFS-RT feed header timestamp").baseUnit("seconds")
-                            .tag("url", url).register(registry));
+                            .description("Age in seconds of the GTFS-RT feed header timestamp")
+                            .baseUnit("seconds")
+                            .tag("url", url)
+                            .register(registry));
 
             lastScrapeSuccess.put(url, new AtomicInteger(0));
             Gauge.builder("gtfsrt_last_scrape_success", lastScrapeSuccess.get(url), AtomicInteger::get)
-                    .description("Whether the last scrape was successful (1) or not (0)").tag("url", url)
+                    .description("Whether the last scrape was successful (1) or not (0)")
+                    .tag("url", url)
                     .register(registry);
         });
     }
@@ -52,7 +58,10 @@ public class GtfsRtMetricsRegistry {
     }
 
     private void incrementScrapeCounter(String url, String result) {
-        Counter.builder("gtfsrt_scrape_attempts_total").tag("url", url).tag("result", result).register(registry)
+        Counter.builder("gtfsrt_scrape_attempts_total")
+                .tag("url", url)
+                .tag("result", result)
+                .register(registry)
                 .increment();
     }
 }

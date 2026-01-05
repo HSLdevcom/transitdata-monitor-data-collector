@@ -25,9 +25,8 @@ public class MqttClient {
     private final MqttAsyncClient client;
     private final MqttConnectOptions connectionOptions;
 
-    public MqttClient(String address, int port, String clientId, Duration connectionTimeout,
-            Duration keepAliveInterval) {
-        this.brokerAddress = "tcp://%s:%s".formatted(address, port);
+    public MqttClient(String brokerAddress, String clientId, Duration connectionTimeout, Duration keepAliveInterval) {
+        this.brokerAddress = brokerAddress;
         this.connectionOptions = mqttConnectOptions(connectionTimeout, keepAliveInterval);
 
         try {
@@ -45,18 +44,15 @@ public class MqttClient {
             client.connect(connectionOptions, null, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
-                    LOG.info("Connected to MQTT broker at {}", brokerAddress);
                     result.complete(null);
                 }
 
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable ex) {
-                    LOG.warn("Error on connecting {}: {}", brokerAddress, ex.getMessage(), ex);
                     result.completeExceptionally(ex);
                 }
             });
         } catch (MqttException ex) {
-            LOG.warn("Error on connecting {}: {}", brokerAddress, ex.getMessage(), ex);
             result.completeExceptionally(ex);
         }
 
@@ -78,20 +74,15 @@ public class MqttClient {
             client.subscribe(topicFilters, qos, null, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
-                    LOG.info("Subscribed to topics {} on broker {}", Arrays.toString(topicFilters), brokerAddress);
                     result.complete(null);
                 }
 
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable ex) {
-                    LOG.error("Failed to subscribe to topics {} on broker {}: {}", Arrays.toString(topicFilters),
-                            brokerAddress, ex.getMessage(), ex);
                     result.completeExceptionally(ex);
                 }
             });
         } catch (MqttException ex) {
-            LOG.error("Failed to subscribe to topics {} on broker {}: {}", Arrays.toString(topicFilters), brokerAddress,
-                    ex.getMessage(), ex);
             result.completeExceptionally(ex);
         }
 
@@ -118,20 +109,15 @@ public class MqttClient {
             client.unsubscribe(topicFilters, null, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
-                    LOG.info("Unsubscribed from topics {} on broker {}", Arrays.toString(topicFilters), brokerAddress);
                     result.complete(null);
                 }
 
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable ex) {
-                    LOG.warn("Failed to unsubscribe from topics {} on broker {}: {}", Arrays.toString(topicFilters),
-                            brokerAddress, ex.getMessage(), ex);
                     result.completeExceptionally(ex);
                 }
             });
         } catch (MqttException ex) {
-            LOG.warn("Failed to unsubscribe from topics {} on broker {}: {}", Arrays.toString(topicFilters),
-                    brokerAddress, ex.getMessage(), ex);
             result.completeExceptionally(ex);
         }
 
@@ -142,10 +128,9 @@ public class MqttClient {
         try {
             if (client.isConnected()) {
                 client.disconnect();
-                LOG.info("Disconnected from MQTT broker at {}", brokerAddress);
             }
         } catch (MqttException ex) {
-            LOG.warn("Error disconnecting from {}: {}", brokerAddress, ex.getMessage(), ex);
+            LOG.error("Error disconnecting from {}: {}", brokerAddress, ex.getMessage(), ex);
         }
     }
 

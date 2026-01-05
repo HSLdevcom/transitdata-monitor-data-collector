@@ -68,10 +68,10 @@ public class Main {
     }
 
     private static MqttListeners createMqttListeners(AppConfig config, PrometheusMeterRegistry registry) {
-        var listeners = config.mqttBrokers().stream().map(brokerConfig -> {
-            var client = new MqttClient(brokerConfig.address(), brokerConfig.port(), MqttClientId.get(),
-                    config.mqttConnectionTimeout(), config.mqttKeepAliveInterval());
-            return new MqttTopicMonitorListener(client, brokerConfig.topicFilters(), registry);
+        var listeners = config.mqttBrokers().stream().map(broker -> {
+            var client = new MqttClient(broker.address(), MqttClientId.get(), config.mqttConnectionTimeout(),
+                    config.mqttKeepAliveInterval());
+            return new MqttTopicMonitorListener(client, broker.topicFilters(), registry);
         }).toList();
 
         return new MqttListeners(listeners);

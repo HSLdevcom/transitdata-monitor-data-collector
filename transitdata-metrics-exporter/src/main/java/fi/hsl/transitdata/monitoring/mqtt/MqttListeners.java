@@ -8,7 +8,9 @@ import java.util.concurrent.CompletableFuture;
 public record MqttListeners(List<MqttTopicMonitorListener> listeners) implements Closeable {
 
     public void start() {
-        var mqttFutures = listeners.stream().map(MqttTopicMonitorListener::start).toArray(CompletableFuture[]::new);
+        var mqttFutures = listeners.stream()
+                .map(MqttTopicMonitorListener::start)
+                .toArray(CompletableFuture[]::new);
 
         CompletableFuture.allOf(mqttFutures).join();
     }

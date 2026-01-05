@@ -122,7 +122,9 @@ class GtfsRtMetricsRegistryTest {
         registry.recordSuccessfulScrape(TEST_URL, 100, 10);
 
         // then
-        var counter = meterRegistry.find("gtfsrt_scrape_attempts_total").tag("url", TEST_URL).tag("result", "success")
+        var counter = meterRegistry.find("gtfsrt_scrape_attempts_total")
+                .tag("url", TEST_URL)
+                .tag("result", "success")
                 .counter();
 
         assertThat(counter).isNotNull();
@@ -153,7 +155,9 @@ class GtfsRtMetricsRegistryTest {
         registry.recordFailedScrape(TEST_URL, "http_404");
 
         // then
-        var counter = meterRegistry.find("gtfsrt_scrape_attempts_total").tag("url", TEST_URL).tag("result", "http_404")
+        var counter = meterRegistry.find("gtfsrt_scrape_attempts_total")
+                .tag("url", TEST_URL)
+                .tag("result", "http_404")
                 .counter();
 
         assertThat(counter).isNotNull();
@@ -169,8 +173,10 @@ class GtfsRtMetricsRegistryTest {
         registry.recordFailedScrape(TEST_URL, "parse_error");
 
         // then
-        var counter = meterRegistry.find("gtfsrt_scrape_attempts_total").tag("url", TEST_URL)
-                .tag("result", "parse_error").counter();
+        var counter = meterRegistry.find("gtfsrt_scrape_attempts_total")
+                .tag("url", TEST_URL)
+                .tag("result", "parse_error")
+                .counter();
 
         assertThat(counter).isNotNull();
         assertThat(counter.count()).isEqualTo(1.0);
@@ -185,7 +191,9 @@ class GtfsRtMetricsRegistryTest {
         registry.recordFailedScrape(TEST_URL, "io_error");
 
         // then
-        var counter = meterRegistry.find("gtfsrt_scrape_attempts_total").tag("url", TEST_URL).tag("result", "io_error")
+        var counter = meterRegistry.find("gtfsrt_scrape_attempts_total")
+                .tag("url", TEST_URL)
+                .tag("result", "io_error")
                 .counter();
 
         assertThat(counter).isNotNull();
@@ -227,14 +235,20 @@ class GtfsRtMetricsRegistryTest {
         registry.recordFailedScrape(TEST_URL, "io_error");
 
         // then
-        var successCounter = meterRegistry.find("gtfsrt_scrape_attempts_total").tag("url", TEST_URL)
-                .tag("result", "success").counter();
+        var successCounter = meterRegistry.find("gtfsrt_scrape_attempts_total")
+                .tag("url", TEST_URL)
+                .tag("result", "success")
+                .counter();
 
-        var http500Counter = meterRegistry.find("gtfsrt_scrape_attempts_total").tag("url", TEST_URL)
-                .tag("result", "http_500").counter();
+        var http500Counter = meterRegistry.find("gtfsrt_scrape_attempts_total")
+                .tag("url", TEST_URL)
+                .tag("result", "http_500")
+                .counter();
 
-        var ioErrorCounter = meterRegistry.find("gtfsrt_scrape_attempts_total").tag("url", TEST_URL)
-                .tag("result", "io_error").counter();
+        var ioErrorCounter = meterRegistry.find("gtfsrt_scrape_attempts_total")
+                .tag("url", TEST_URL)
+                .tag("result", "io_error")
+                .counter();
 
         assertThat(successCounter.count()).isEqualTo(2.0);
         assertThat(http500Counter.count()).isEqualTo(1.0);
@@ -257,11 +271,15 @@ class GtfsRtMetricsRegistryTest {
         assertThat(gauge1.value()).isEqualTo(1.0);
         assertThat(gauge2.value()).isEqualTo(0.0);
 
-        var successCounter = meterRegistry.find("gtfsrt_scrape_attempts_total").tag("url", TEST_URL)
-                .tag("result", "success").counter();
+        var successCounter = meterRegistry.find("gtfsrt_scrape_attempts_total")
+                .tag("url", TEST_URL)
+                .tag("result", "success")
+                .counter();
 
-        var failureCounter = meterRegistry.find("gtfsrt_scrape_attempts_total").tag("url", TEST_URL_2)
-                .tag("result", "http_404").counter();
+        var failureCounter = meterRegistry.find("gtfsrt_scrape_attempts_total")
+                .tag("url", TEST_URL_2)
+                .tag("result", "http_404")
+                .counter();
 
         assertThat(successCounter.count()).isEqualTo(1.0);
         assertThat(failureCounter.count()).isEqualTo(1.0);

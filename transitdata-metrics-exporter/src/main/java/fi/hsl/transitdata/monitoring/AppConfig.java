@@ -34,9 +34,12 @@ public record AppConfig(int port, List<String> gtfsRtUrls, Duration gtfsRtPollIn
             return List.of();
         }
 
-        return config.getConfigList("mqtt.brokers").stream()
+        var brokersJson = config.getString("mqtt.brokers");
+        var parsedConfig = ConfigFactory.parseString("brokers = " + brokersJson);
+        return parsedConfig.getConfigList("brokers")
+                .stream()
                 .map(brokerConfig -> new MqttBrokerConfig(brokerConfig.getString("address"),
-                        brokerConfig.getInt("port"), brokerConfig.getStringList("topicFilters")))
+                        brokerConfig.getStringList("topicFilters")))
                 .toList();
     }
 
