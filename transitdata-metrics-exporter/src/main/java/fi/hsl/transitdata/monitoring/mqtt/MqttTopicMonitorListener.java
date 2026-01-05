@@ -58,6 +58,13 @@ public class MqttTopicMonitorListener implements MqttCallback, Closeable {
     public void connectionLost(Throwable cause) {
         LOG.warn("Connection lost from {}: {}", client.getBrokerAddress(),
                 cause == null ? "unknown" : cause.getMessage(), cause);
+
+        Counter.builder("mqtt_connection_lost")
+                .description("MQTT connection lost")
+                .tag("broker", client.getBrokerAddress())
+                .register(registry)
+                .increment();
+
         scheduleResubscription();
     }
 
