@@ -46,8 +46,8 @@ public class MqttTopicMonitorListener implements MqttCallback, Closeable {
                 .thenCompose(ignored -> client.subscribe(topicFilters))
                 .whenComplete((result, ex) -> {
                     if (ex != null) {
-                        LOG.error("Failed to connect or subscribe to {}: {}", client.getBrokerAddress(), ex.getMessage(),
-                                ex);
+                        LOG.error("Failed to connect or subscribe to {}: {}", client.getBrokerAddress(),
+                                ex.getMessage(), ex);
                     } else {
                         LOG.info("Successfully connected and subscribed to topics on {}", client.getBrokerAddress());
                     }
@@ -56,8 +56,8 @@ public class MqttTopicMonitorListener implements MqttCallback, Closeable {
 
     @Override
     public void connectionLost(Throwable cause) {
-        LOG.warn("Connection lost from {}: {}", client.getBrokerAddress(), cause == null ? "unknown" : cause.getMessage(),
-                cause);
+        LOG.warn("Connection lost from {}: {}", client.getBrokerAddress(),
+                cause == null ? "unknown" : cause.getMessage(), cause);
         scheduleResubscription();
     }
 
@@ -103,14 +103,11 @@ public class MqttTopicMonitorListener implements MqttCallback, Closeable {
         try {
             resubscriptionExecutor.shutdown();
 
-            client.unsubscribe(topicFilters)
-                    .thenRunAsync(client::disconnect)
-                    .exceptionallyAsync(ex -> {
-                        LOG.warn("Error during unsubscribe, disconnecting anyway: {}", ex.getMessage());
-                        runAsync(client::disconnect).join();
-                        return null;
-                    })
-                    .join();
+            client.unsubscribe(topicFilters).thenRunAsync(client::disconnect).exceptionallyAsync(ex -> {
+                LOG.warn("Error during unsubscribe, disconnecting anyway: {}", ex.getMessage());
+                runAsync(client::disconnect).join();
+                return null;
+            }).join();
 
             if (!resubscriptionExecutor.awaitTermination(5, SECONDS)) {
                 LOG.warn("Re-subscription executor did not terminate, forcing shutdown");
