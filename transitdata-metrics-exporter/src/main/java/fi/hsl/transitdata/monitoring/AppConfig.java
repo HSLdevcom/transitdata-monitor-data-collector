@@ -8,13 +8,8 @@ import java.time.Duration;
 import java.util.List;
 import java.util.function.Function;
 
-public record AppConfig(int port,
-                 List<String> gtfsRtUrls,
-                 Duration gtfsRtPollInterval,
-                 Duration gtfsRtClientTimeout,
-                 Duration mqttConnectionTimeout,
-                 Duration mqttKeepAliveInterval,
-                 List<MqttBrokerConfig> mqttBrokers) {
+public record AppConfig(int port, List<String> gtfsRtUrls, Duration gtfsRtPollInterval, Duration gtfsRtClientTimeout,
+        Duration mqttConnectionTimeout, Duration mqttKeepAliveInterval, List<MqttBrokerConfig> mqttBrokers) {
 
     public static AppConfig parseFrom(String configurationFile) {
         var config = ConfigFactory.parseResources(configurationFile).resolve();
@@ -30,8 +25,8 @@ public record AppConfig(int port,
         var mqttKeepAliveInterval = Duration.parse(getRequired(config, "mqtt.keepAliveInterval", config::getString));
         var mqttBrokers = parseMqttBrokers(config);
 
-        return new AppConfig(port, gtfsRtUrls, gtfsRtPollInterval, gtfsRtClientTimeout,
-                mqttConnectionTimeout, mqttKeepAliveInterval, mqttBrokers);
+        return new AppConfig(port, gtfsRtUrls, gtfsRtPollInterval, gtfsRtClientTimeout, mqttConnectionTimeout,
+                mqttKeepAliveInterval, mqttBrokers);
     }
 
     private static List<MqttBrokerConfig> parseMqttBrokers(Config config) {
@@ -40,11 +35,8 @@ public record AppConfig(int port,
         }
 
         return config.getConfigList("mqtt.brokers").stream()
-                .map(brokerConfig -> new MqttBrokerConfig(
-                        brokerConfig.getString("address"),
-                        brokerConfig.getInt("port"),
-                        brokerConfig.getStringList("topicFilters")
-                ))
+                .map(brokerConfig -> new MqttBrokerConfig(brokerConfig.getString("address"),
+                        brokerConfig.getInt("port"), brokerConfig.getStringList("topicFilters")))
                 .toList();
     }
 

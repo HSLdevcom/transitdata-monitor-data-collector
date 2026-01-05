@@ -25,7 +25,8 @@ public class MqttClient {
     private final MqttAsyncClient client;
     private final MqttConnectOptions connectionOptions;
 
-    public MqttClient(String address, int port, String clientId, Duration connectionTimeout, Duration keepAliveInterval) {
+    public MqttClient(String address, int port, String clientId, Duration connectionTimeout,
+            Duration keepAliveInterval) {
         this.brokerAddress = "tcp://%s:%s".formatted(address, port);
         this.connectionOptions = mqttConnectOptions(connectionTimeout, keepAliveInterval);
 
@@ -83,14 +84,14 @@ public class MqttClient {
 
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable ex) {
-                    LOG.error("Failed to subscribe to topics {} on broker {}: {}",
-                            Arrays.toString(topicFilters), brokerAddress, ex.getMessage(), ex);
+                    LOG.error("Failed to subscribe to topics {} on broker {}: {}", Arrays.toString(topicFilters),
+                            brokerAddress, ex.getMessage(), ex);
                     result.completeExceptionally(ex);
                 }
             });
         } catch (MqttException ex) {
-            LOG.error("Failed to subscribe to topics {} on broker {}: {}",
-                    Arrays.toString(topicFilters), brokerAddress, ex.getMessage(), ex);
+            LOG.error("Failed to subscribe to topics {} on broker {}: {}", Arrays.toString(topicFilters), brokerAddress,
+                    ex.getMessage(), ex);
             result.completeExceptionally(ex);
         }
 
@@ -123,14 +124,14 @@ public class MqttClient {
 
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable ex) {
-                    LOG.warn("Failed to unsubscribe from topics {} on broker {}: {}",
-                            Arrays.toString(topicFilters), brokerAddress, ex.getMessage(), ex);
+                    LOG.warn("Failed to unsubscribe from topics {} on broker {}: {}", Arrays.toString(topicFilters),
+                            brokerAddress, ex.getMessage(), ex);
                     result.completeExceptionally(ex);
                 }
             });
         } catch (MqttException ex) {
-            LOG.warn("Failed to unsubscribe from topics {} on broker {}: {}",
-                    Arrays.toString(topicFilters), brokerAddress, ex.getMessage(), ex);
+            LOG.warn("Failed to unsubscribe from topics {} on broker {}: {}", Arrays.toString(topicFilters),
+                    brokerAddress, ex.getMessage(), ex);
             result.completeExceptionally(ex);
         }
 

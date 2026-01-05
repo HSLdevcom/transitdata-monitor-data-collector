@@ -114,11 +114,8 @@ class MqttTopicFilterMatcherTest {
     void shouldReturnFirstMatchingFilterFromMultiple() {
         // given
         var topic = "/hfp/v2/journey/ongoing/vp/ferry/1019";
-        var filters = new String[]{
-                "/hfp/v2/journey/#",
-                "/hfp/v2/journey/ongoing/+/ferry/#",
-                "/hfp/v2/journey/ongoing/+/metro/#"
-        };
+        var filters = new String[]{"/hfp/v2/journey/#", "/hfp/v2/journey/ongoing/+/ferry/#",
+                "/hfp/v2/journey/ongoing/+/metro/#"};
 
         // when
         var result = MqttTopicFilterMatcher.findMatchingTopicFilter(topic, filters);
@@ -209,10 +206,7 @@ class MqttTopicFilterMatcherTest {
     void shouldMatchApcTopicSpecifically() {
         // given
         var topic = "/hfp/v2/journey/ongoing/apc/bus/0055/01234/2107/1/Tapiola";
-        var filters = new String[]{
-                "/hfp/v2/journey/ongoing/apc/#",
-                "/hfp/v2/journey/#"
-        };
+        var filters = new String[]{"/hfp/v2/journey/ongoing/apc/#", "/hfp/v2/journey/#"};
 
         // when
         var result = MqttTopicFilterMatcher.findMatchingTopicFilter(topic, filters);
@@ -225,11 +219,8 @@ class MqttTopicFilterMatcherTest {
     void shouldMatchComplexBusTopic() {
         // given
         var topic = "/hfp/v2/journey/ongoing/vp/bus/0022/01216/2107/1/Tapiola/11:06/2265203/5/60;24/18/80/57";
-        var filters = new String[]{
-                "/hfp/v2/journey/ongoing/apc/#",
-                "/hfp/v2/journey/ongoing/+/ferry/#",
-                "/hfp/v2/journey/#"
-        };
+        var filters = new String[]{"/hfp/v2/journey/ongoing/apc/#", "/hfp/v2/journey/ongoing/+/ferry/#",
+                "/hfp/v2/journey/#"};
 
         // when
         var result = MqttTopicFilterMatcher.findMatchingTopicFilter(topic, filters);
