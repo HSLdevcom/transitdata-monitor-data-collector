@@ -1,4 +1,4 @@
-package fi.hsl.transitdata.monitoring;
+package fi.hsl.transitdata.monitoring.gtfsrt;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;

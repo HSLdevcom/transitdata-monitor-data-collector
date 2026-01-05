@@ -1,11 +1,11 @@
-package fi.hsl.transitdata.monitoring;
+package fi.hsl.transitdata.monitoring.web;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 import java.io.IOException;
 
-class LivenessEndpoint implements HttpHandler {
+public class LivenessEndpoint implements HttpHandler {
 
     private static final byte[] OK_RESPONSE = "OK".getBytes();
 

@@ -8,7 +8,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.function.Function;
 
-record AppConfig(int port,
+public record AppConfig(int port,
                  List<String> gtfsRtUrls,
                  Duration gtfsRtPollInterval,
                  Duration gtfsRtClientTimeout,

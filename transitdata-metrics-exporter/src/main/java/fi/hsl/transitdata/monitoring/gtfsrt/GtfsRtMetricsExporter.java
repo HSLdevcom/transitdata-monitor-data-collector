@@ -1,6 +1,7 @@
-package fi.hsl.transitdata.monitoring;
+package fi.hsl.transitdata.monitoring.gtfsrt;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import fi.hsl.transitdata.monitoring.AppConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +18,7 @@ import static java.net.http.HttpResponse.BodyHandlers;
 import static java.time.Instant.now;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
-class GtfsRtMetricsExporter implements Closeable {
+public class GtfsRtMetricsExporter implements Closeable {
 
     private static final Logger LOG = LoggerFactory.getLogger(GtfsRtMetricsExporter.class);
 

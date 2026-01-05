@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import static fi.hsl.transitdata.monitoring.mqtt.MqttTopicFilterMatcher.findMatchingTopicFilter;
@@ -20,17 +21,17 @@ public class MqttTopicMonitorListener implements MqttCallback, Closeable {
 
     private final MqttClient client;
     private final String[] topicFilters;
-    private final MeterRegistry meterRegistry;
+    private final MeterRegistry registry;
 
-    public MqttTopicMonitorListener(MqttClient client, String[] topicFilters, MeterRegistry meterRegistry) {
+    public MqttTopicMonitorListener(MqttClient client, List<String> topicFilters, MeterRegistry registry) {
         this.client = client;
-        this.topicFilters = topicFilters;
-        this.meterRegistry = meterRegistry;
+        this.topicFilters = topicFilters.toArray(new String[0]);
+        this.registry = registry;
 
         Gauge.builder("mqtt_connected", client, c -> c.isConnected() ? 1.0 : 0.0)
                 .description("MQTT connection status (1 = connected, 0 = disconnected)")
                 .tag("broker", client.getBrokerAddress())
-                .register(meterRegistry);
+                .register(registry);
     }
 
     public CompletableFuture<Void> start() {
@@ -59,7 +60,7 @@ public class MqttTopicMonitorListener implements MqttCallback, Closeable {
                 .tag("qos", String.valueOf(message.getQos()))
                 .tag("is_duplicate", String.valueOf(message.isDuplicate()))
                 .tag("is_retained", String.valueOf(message.isRetained()))
-                .register(meterRegistry)
+                .register(registry)
                 .increment();
     }
 

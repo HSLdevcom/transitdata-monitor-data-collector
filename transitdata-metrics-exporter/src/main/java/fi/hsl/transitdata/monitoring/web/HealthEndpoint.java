@@ -1,12 +1,13 @@
-package fi.hsl.transitdata.monitoring;
+package fi.hsl.transitdata.monitoring.web;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-class HealthEndpoint implements HttpHandler {
+public class HealthEndpoint implements HttpHandler, Closeable {
 
     private static final byte[] READY_RESPONSE = "Ready".getBytes();
     private static final byte[] NOT_READY_RESPONSE = "Not ready".getBytes();
@@ -26,6 +27,11 @@ class HealthEndpoint implements HttpHandler {
                 os.write(NOT_READY_RESPONSE);
             }
         }
+    }
+
+    @Override
+    public void close() throws IOException {
+        markNotReady();
     }
 
     public void markReady() {

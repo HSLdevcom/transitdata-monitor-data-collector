@@ -1,4 +1,4 @@
-package fi.hsl.transitdata.monitoring;
+package fi.hsl.transitdata.monitoring.gtfsrt;
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.DistributionSummary;
@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-class GtfsRtMetricsRegistry {
+public class GtfsRtMetricsRegistry {
 
     private final MeterRegistry registry;
     private final ConcurrentMap<String, DistributionSummary> entityCount = new ConcurrentHashMap<>();
