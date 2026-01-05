@@ -2,7 +2,6 @@ package fi.hsl.transitdata.monitoring;
 
 import com.google.transit.realtime.GtfsRealtime.FeedEntity;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,8 +38,8 @@ class GtfsRtMetricsExporterTest {
     private ScheduledExecutorService scheduledExecutor;
 
     private SimpleMeterRegistry meterRegistry;
-    private GtfsRtMetricsRegistry metricsRegistry;
     private AppConfig config;
+    private GtfsRtMetricsRegistry metricsRegistry;
     private GtfsRtMetricsExporter exporter;
 
     private static final String TEST_URL = "http://example.com/gtfs-rt";
@@ -52,13 +51,6 @@ class GtfsRtMetricsExporterTest {
         meterRegistry = new SimpleMeterRegistry();
         config = new AppConfig(8080, List.of(TEST_URL), POLL_INTERVAL, CLIENT_TIMEOUT);
         metricsRegistry = new GtfsRtMetricsRegistry(meterRegistry, config.gtfsRtUrls());
-    }
-
-    @AfterEach
-    void tearDown() {
-        if (exporter != null) {
-            exporter.close();
-        }
     }
 
     @Test

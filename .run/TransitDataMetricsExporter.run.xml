@@ -1,0 +1,18 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="TransitDataMetricsExporter" type="Application" factoryName="Application">
+    <envs>
+      <env name="GTFSRT_URLS" value="https://realtime.hsl.fi/realtime/service-alerts/v2/hsl,https://realtime.hsl.fi/realtime/trip-updates/v2/hsl,https://realtime.hsl.fi/realtime/vehicle-positions/v2/hsl,https://realtime.hsl.fi/realtime/trip-updates-for-google/v2/hsl,https://realtime.hsl.fi/realtime/vehicle-positions-bustram/v2/hsl,https://realtime.hsl.fi/realtime/vehicle-positions-trainmetro/v2/hsl" />
+    </envs>
+    <option name="MAIN_CLASS_NAME" value="fi.hsl.transitdata.monitoring.Main" />
+    <module name="transitdata-metrics-exporter" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="fi.hsl.transitdata.monitoring.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

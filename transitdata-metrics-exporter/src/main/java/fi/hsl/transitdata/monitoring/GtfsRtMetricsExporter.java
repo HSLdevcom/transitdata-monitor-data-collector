@@ -21,8 +21,6 @@ class GtfsRtMetricsExporter implements Closeable {
 
     private static final Logger LOG = LoggerFactory.getLogger(GtfsRtMetricsExporter.class);
 
-    private static final int NO_DELAY = 0;
-
     private final AppConfig config;
     private final HttpClient httpClient;
     private final GtfsRtMetricsRegistry registry;
@@ -36,7 +34,7 @@ class GtfsRtMetricsExporter implements Closeable {
         this.httpClient = httpClient;
         this.registry = registry;
         this.executor = executor;
-        executor.scheduleAtFixedRate(() -> updateAllFeeds(config.gtfsRtUrls()), NO_DELAY,
+        executor.scheduleAtFixedRate(() -> updateAllFeeds(config.gtfsRtUrls()), 0,
                 config.gtfsRtPollInterval().toMinutes(), MINUTES);
     }
 
