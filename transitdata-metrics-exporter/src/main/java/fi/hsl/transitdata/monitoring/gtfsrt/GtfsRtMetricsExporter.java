@@ -9,7 +9,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
-import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 
 import static com.google.transit.realtime.GtfsRealtime.FeedMessage;
@@ -27,8 +26,10 @@ public class GtfsRtMetricsExporter implements Closeable {
     private final GtfsRtMetricsRegistry registry;
     private final ScheduledExecutorService executor;
 
-    public GtfsRtMetricsExporter(AppConfig config, HttpClient httpClient, GtfsRtMetricsRegistry registry,
-            ScheduledExecutorService executor) {
+    public GtfsRtMetricsExporter(AppConfig config,
+                                 HttpClient httpClient,
+                                 GtfsRtMetricsRegistry registry,
+                                 ScheduledExecutorService executor) {
         this.config = config;
         this.httpClient = httpClient;
         this.registry = registry;
