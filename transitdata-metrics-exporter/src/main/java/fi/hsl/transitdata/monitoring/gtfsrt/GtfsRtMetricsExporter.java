@@ -36,8 +36,9 @@ public class GtfsRtMetricsExporter implements Closeable {
     }
 
     public void start() {
-        config.gtfsRtUrls().forEach(url -> executor.scheduleAtFixedRate(() -> updateFeed(url), 0,
-                config.gtfsRtPollInterval().toMinutes(), MINUTES));
+        config.gtfsRtUrls()
+                .forEach(url -> executor.scheduleAtFixedRate(() -> updateFeed(url), 0,
+                        config.gtfsRtPollInterval().toMinutes(), MINUTES));
     }
 
     @Override
