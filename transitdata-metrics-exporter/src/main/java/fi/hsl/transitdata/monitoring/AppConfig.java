@@ -18,7 +18,7 @@ public record AppConfig(int port, List<String> gtfsRtUrls, Duration gtfsRtPollIn
 
     private static AppConfig buildFrom(Config config) {
         var port = getRequired(config, "port", config::getInt);
-        var gtfsRtUrls = List.of((getRequired(config, "gtfsrt.urls", config::getString)).split(","));
+        var gtfsRtUrls = getRequired(config, "gtfsrt.urls", config::getStringList);
         var gtfsRtPollInterval = Duration.parse(getRequired(config, "gtfsrt.pollInterval", config::getString));
         var gtfsRtClientTimeout = Duration.parse(getRequired(config, "gtfsrt.clientTimeout", config::getString));
         var mqttConnectionTimeout = Duration.parse(getRequired(config, "mqtt.connectionTimeout", config::getString));
