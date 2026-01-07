@@ -18,7 +18,7 @@ public record AppConfig(int port, List<String> gtfsRtUrls, Duration gtfsRtPollIn
 
     private static AppConfig buildFrom(Config config) {
         var port = getRequired(config, "port", config::getInt);
-        var gtfsRtUrls = getRequired(config, "gtfsrt.urls", config::getStringList);
+        var gtfsRtUrls = parseGtfsRtUrls(config);
         var gtfsRtPollInterval = Duration.parse(getRequired(config, "gtfsrt.pollInterval", config::getString));
         var gtfsRtClientTimeout = Duration.parse(getRequired(config, "gtfsrt.clientTimeout", config::getString));
         var mqttConnectionTimeout = Duration.parse(getRequired(config, "mqtt.connectionTimeout", config::getString));
@@ -27,6 +27,16 @@ public record AppConfig(int port, List<String> gtfsRtUrls, Duration gtfsRtPollIn
 
         return new AppConfig(port, gtfsRtUrls, gtfsRtPollInterval, gtfsRtClientTimeout, mqttConnectionTimeout,
                 mqttKeepAliveInterval, mqttBrokers);
+    }
+
+    private static List<String> parseGtfsRtUrls(Config config) {
+        if (!config.hasPath("gtfsrt.urls")) {
+            throw new IllegalArgumentException("gtfsrt.urls is required");
+        }
+
+        var urlsJson = config.getString("gtfsrt.urls");
+        var parsedConfig = ConfigFactory.parseString("urls = " + urlsJson);
+        return parsedConfig.getStringList("urls");
     }
 
     private static List<MqttBrokerConfig> parseMqttBrokers(Config config) {
