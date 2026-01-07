@@ -26,10 +26,8 @@ public class GtfsRtMetricsExporter implements Closeable {
     private final GtfsRtMetricsRegistry registry;
     private final ScheduledExecutorService executor;
 
-    public GtfsRtMetricsExporter(AppConfig config,
-                                 HttpClient httpClient,
-                                 GtfsRtMetricsRegistry registry,
-                                 ScheduledExecutorService executor) {
+    public GtfsRtMetricsExporter(AppConfig config, HttpClient httpClient, GtfsRtMetricsRegistry registry,
+            ScheduledExecutorService executor) {
         this.config = config;
         this.httpClient = httpClient;
         this.registry = registry;
