@@ -64,7 +64,7 @@ public class Main {
     }
 
     private static GtfsRtMetricsExporter createGtfsRtMetricsExporter(AppConfig config,
-                                                                     PrometheusMeterRegistry registry) {
+            PrometheusMeterRegistry registry) {
         var httpClient = HttpClient.newBuilder().connectTimeout(config.gtfsRtClientTimeout()).build();
         var gtfsRtMetricsRegistry = new GtfsRtMetricsRegistry(registry, config.gtfsRtUrls());
         var executor = newScheduledThreadPool(config.gtfsRtUrls().size(), Thread.ofVirtual().factory());
@@ -73,15 +73,11 @@ public class Main {
     }
 
     private static MqttListeners createMqttListeners(AppConfig config, PrometheusMeterRegistry registry) {
-        var listeners = config.mqttBrokers().stream().map(broker ->
-                new MqttTopicMonitorListener(
-                        broker.address(),
-                        MqttClientId.get(),
-                        broker.topicFilters(),
-                        config.mqttConnectionTimeout(),
-                        config.mqttKeepAliveInterval(),
-                        registry)
-        ).toList();
+        var listeners = config.mqttBrokers()
+                .stream()
+                .map(broker -> new MqttTopicMonitorListener(broker.address(), MqttClientId.get(), broker.topicFilters(),
+                        config.mqttConnectionTimeout(), config.mqttKeepAliveInterval(), registry))
+                .toList();
 
         return new MqttListeners(listeners);
     }
