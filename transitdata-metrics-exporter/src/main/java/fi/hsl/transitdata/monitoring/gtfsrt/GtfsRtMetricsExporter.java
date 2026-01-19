@@ -15,7 +15,7 @@ import static com.google.transit.realtime.GtfsRealtime.FeedMessage;
 import static java.net.http.HttpRequest.newBuilder;
 import static java.net.http.HttpResponse.BodyHandlers;
 import static java.time.Instant.now;
-import static java.util.concurrent.TimeUnit.MINUTES;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class GtfsRtMetricsExporter implements Closeable {
 
@@ -27,7 +27,7 @@ public class GtfsRtMetricsExporter implements Closeable {
     private final ScheduledExecutorService executor;
 
     public GtfsRtMetricsExporter(AppConfig config, HttpClient httpClient, GtfsRtMetricsRegistry registry,
-            ScheduledExecutorService executor) {
+                                 ScheduledExecutorService executor) {
         this.config = config;
         this.httpClient = httpClient;
         this.registry = registry;
@@ -37,7 +37,7 @@ public class GtfsRtMetricsExporter implements Closeable {
     public void start() {
         config.gtfsRtUrls()
                 .forEach(url -> executor.scheduleAtFixedRate(() -> updateFeed(url), 0,
-                        config.gtfsRtPollInterval().toMinutes(), MINUTES));
+                        config.gtfsRtPollInterval().toSeconds(), SECONDS));
     }
 
     @Override
