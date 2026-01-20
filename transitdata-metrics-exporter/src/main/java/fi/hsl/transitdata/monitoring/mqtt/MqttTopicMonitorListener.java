@@ -25,6 +25,14 @@ public class MqttTopicMonitorListener implements MqttCallbackExtended, Closeable
     private static final Logger LOG = LoggerFactory.getLogger(MqttTopicMonitorListener.class);
 
     private static final int QOS = 2;
+    /**
+     * The protocol maximum is 2**16 - 1 for QoS 1 and 2 (-1 for the forbidden Packet Identifier 0).
+     * We get from the HFP topic alone around 110_000 messages per minute at peak time.
+     * That would be about 1833 messages per second just for that topic filter.
+     * If the worst case RTT between the data centers would be 100 ms, that would mean a throughput
+     * of MAX_INFLIGHT_MESSAGES / 0.1 s. With max of 100 msg, the throughput would be only 1000 msg/s.
+     * With max of 1000 msg, the throughput would be 10000 msg/s which is sufficient.
+     */
     private static final int MAX_INFLIGHT_MESSAGES = 1000;
 
     private final MqttAsyncClient client;
