@@ -24,25 +24,26 @@ public class GtfsRtMetricsExporter implements Closeable {
     private final AppConfig config;
     private final HttpClient httpClient;
     private final GtfsRtMetricsRegistry registry;
-    private final ScheduledExecutorService executor;
+    private final ScheduledExecutorService scheduledExecutor;
 
     public GtfsRtMetricsExporter(AppConfig config, HttpClient httpClient, GtfsRtMetricsRegistry registry,
-            ScheduledExecutorService executor) {
+            ScheduledExecutorService scheduledExecutor) {
         this.config = config;
         this.httpClient = httpClient;
         this.registry = registry;
-        this.executor = executor;
+        this.scheduledExecutor = scheduledExecutor;
     }
 
     public void start() {
-        config.gtfsRtUrls()
-                .forEach(url -> executor.scheduleAtFixedRate(() -> updateFeed(url), 0,
-                        config.gtfsRtPollInterval().toSeconds(), SECONDS));
+        for (var url : config.gtfsRtUrls()) {
+            scheduledExecutor.scheduleAtFixedRate(() -> updateFeed(url), 0, config.gtfsRtPollInterval().toSeconds(),
+                    SECONDS);
+        }
     }
 
     @Override
     public void close() {
-        executor.close();
+        scheduledExecutor.close();
     }
 
     void updateFeed(String url) {
