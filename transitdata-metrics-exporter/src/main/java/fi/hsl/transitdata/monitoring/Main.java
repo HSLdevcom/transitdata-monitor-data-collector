@@ -63,7 +63,7 @@ public class Main {
     }
 
     private static GtfsRtMetricsExporter createGtfsRtMetricsExporter(AppConfig config,
-            PrometheusMeterRegistry registry) {
+                                                                     PrometheusMeterRegistry registry) {
         var httpClient = HttpClient.newBuilder().connectTimeout(config.gtfsRtClientTimeout()).build();
         var gtfsRtMetricsRegistry = new GtfsRtMetricsRegistry(registry, config.gtfsRtUrls());
         var executor = newScheduledThreadPool(config.gtfsRtUrls().size(), Thread.ofVirtual().factory());
