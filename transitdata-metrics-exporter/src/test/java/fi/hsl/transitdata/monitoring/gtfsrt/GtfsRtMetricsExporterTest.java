@@ -46,12 +46,13 @@ class GtfsRtMetricsExporterTest {
     private static final String TEST_URL = "http://example.com/gtfs-rt";
     private static final Duration POLL_INTERVAL = Duration.ofMinutes(1);
     private static final Duration CLIENT_TIMEOUT = Duration.ofSeconds(5);
+    private static final String MQTT_CLIENT_ID = "transitdata-metrics-exporter-local";
 
     @BeforeEach
     void setUp() {
         meterRegistry = new SimpleMeterRegistry();
-        config = new AppConfig(8080, List.of(TEST_URL), POLL_INTERVAL, CLIENT_TIMEOUT, CLIENT_TIMEOUT, CLIENT_TIMEOUT,
-                List.of());
+        config = new AppConfig(8080, List.of(TEST_URL), POLL_INTERVAL, CLIENT_TIMEOUT, MQTT_CLIENT_ID, CLIENT_TIMEOUT,
+                CLIENT_TIMEOUT, List.of());
         metricsRegistry = new GtfsRtMetricsRegistry(meterRegistry, config.gtfsRtUrls());
     }
 
@@ -258,8 +259,8 @@ class GtfsRtMetricsExporterTest {
         // given
         var url1 = "http://example.com/feed1";
         var url2 = "http://example.com/feed2";
-        var multiUrlConfig = new AppConfig(8080, List.of(url1, url2), POLL_INTERVAL, CLIENT_TIMEOUT, CLIENT_TIMEOUT,
-                CLIENT_TIMEOUT, List.of());
+        var multiUrlConfig = new AppConfig(8080, List.of(url1, url2), POLL_INTERVAL, CLIENT_TIMEOUT, MQTT_CLIENT_ID,
+                CLIENT_TIMEOUT, CLIENT_TIMEOUT, List.of());
         var multiUrlRegistry = new GtfsRtMetricsRegistry(meterRegistry, multiUrlConfig.gtfsRtUrls());
         exporter = new GtfsRtMetricsExporter(multiUrlConfig, httpClient, multiUrlRegistry, scheduledExecutor);
 
