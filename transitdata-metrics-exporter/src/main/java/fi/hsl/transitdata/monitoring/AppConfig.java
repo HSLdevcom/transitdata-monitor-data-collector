@@ -9,7 +9,8 @@ import java.util.List;
 import java.util.function.Function;
 
 public record AppConfig(int port, List<String> gtfsRtUrls, Duration gtfsRtPollInterval, Duration gtfsRtClientTimeout,
-        Duration mqttConnectionTimeout, Duration mqttKeepAliveInterval, List<MqttBrokerConfig> mqttBrokers) {
+        String mqttClientId, Duration mqttConnectionTimeout, Duration mqttKeepAliveInterval,
+        List<MqttBrokerConfig> mqttBrokers) {
 
     public static AppConfig parseFrom(String configurationFile) {
         var config = ConfigFactory.parseResources(configurationFile).resolve();
@@ -21,12 +22,13 @@ public record AppConfig(int port, List<String> gtfsRtUrls, Duration gtfsRtPollIn
         var gtfsRtUrls = parseGtfsRtUrls(config);
         var gtfsRtPollInterval = Duration.parse(getRequired(config, "gtfsrt.pollInterval", config::getString));
         var gtfsRtClientTimeout = Duration.parse(getRequired(config, "gtfsrt.clientTimeout", config::getString));
+        var mqttClientId = getRequired(config, "mqtt.clientId", config::getString);
         var mqttConnectionTimeout = Duration.parse(getRequired(config, "mqtt.connectionTimeout", config::getString));
         var mqttKeepAliveInterval = Duration.parse(getRequired(config, "mqtt.keepAliveInterval", config::getString));
         var mqttBrokers = parseMqttBrokers(config);
 
-        return new AppConfig(port, gtfsRtUrls, gtfsRtPollInterval, gtfsRtClientTimeout, mqttConnectionTimeout,
-                mqttKeepAliveInterval, mqttBrokers);
+        return new AppConfig(port, gtfsRtUrls, gtfsRtPollInterval, gtfsRtClientTimeout, mqttClientId,
+                mqttConnectionTimeout, mqttKeepAliveInterval, mqttBrokers);
     }
 
     private static List<String> parseGtfsRtUrls(Config config) {

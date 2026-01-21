@@ -3,7 +3,6 @@ package fi.hsl.transitdata.monitoring;
 import com.sun.net.httpserver.HttpServer;
 import fi.hsl.transitdata.monitoring.gtfsrt.GtfsRtMetricsExporter;
 import fi.hsl.transitdata.monitoring.gtfsrt.GtfsRtMetricsRegistry;
-import fi.hsl.transitdata.monitoring.mqtt.MqttClientId;
 import fi.hsl.transitdata.monitoring.mqtt.MqttListeners;
 import fi.hsl.transitdata.monitoring.mqtt.MqttTopicMonitorListener;
 import fi.hsl.transitdata.monitoring.web.HealthEndpoint;
@@ -75,8 +74,9 @@ public class Main {
     private static MqttListeners createMqttListeners(AppConfig config, PrometheusMeterRegistry registry) {
         var listeners = config.mqttBrokers()
                 .stream()
-                .map(broker -> new MqttTopicMonitorListener(broker.address(), MqttClientId.get(), broker.topicFilters(),
-                        config.mqttConnectionTimeout(), config.mqttKeepAliveInterval(), registry))
+                .map(broker -> new MqttTopicMonitorListener(broker.address(), config.mqttClientId(),
+                        broker.topicFilters(), config.mqttConnectionTimeout(), config.mqttKeepAliveInterval(),
+                        registry))
                 .toList();
 
         return new MqttListeners(listeners);
