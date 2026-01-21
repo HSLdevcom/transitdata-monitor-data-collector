@@ -42,7 +42,7 @@ public class MqttTopicMonitorListener implements MqttCallbackExtended, Closeable
     private final MeterRegistry registry;
 
     public MqttTopicMonitorListener(String brokerAddress, String clientId, List<String> topicFilters,
-            Duration connectionTimeout, Duration keepAliveInterval, MeterRegistry registry) {
+                                    Duration connectionTimeout, Duration keepAliveInterval, MeterRegistry registry) {
         this.brokerAddress = brokerAddress;
         this.topicFilters = topicFilters.toArray(new String[0]);
         this.registry = registry;
@@ -117,7 +117,6 @@ public class MqttTopicMonitorListener implements MqttCallbackExtended, Closeable
     public void close() {
         try {
             if (client.isConnected()) {
-                client.unsubscribe(topicFilters);
                 client.disconnect();
             }
         } catch (MqttException e) {
