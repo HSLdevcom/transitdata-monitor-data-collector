@@ -14,5 +14,9 @@
         <setting id="org.eclipse.jdt.core.formatter.comment.format_block_comments" value="false"/>
         <setting id="org.eclipse.jdt.core.formatter.comment.format_javadoc_comments" value="false"/>
 
+        <!-- Chained method calls: wrap all elements, each on new line -->
+        <setting id="org.eclipse.jdt.core.formatter.alignment_for_selector_in_method_invocation" value="80"/>
+        <setting id="org.eclipse.jdt.core.formatter.wrap_outer_expressions_when_nested" value="true"/>
+
     </profile>
 </profiles>

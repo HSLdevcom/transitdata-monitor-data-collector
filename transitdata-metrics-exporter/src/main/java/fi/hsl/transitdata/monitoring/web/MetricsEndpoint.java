@@ -1,4 +1,4 @@
-package fi.hsl.transitdata.monitoring;
+package fi.hsl.transitdata.monitoring.web;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -6,7 +6,7 @@ import io.micrometer.prometheusmetrics.PrometheusMeterRegistry;
 
 import java.io.IOException;
 
-class MetricsEndpoint implements HttpHandler {
+public class MetricsEndpoint implements HttpHandler {
 
     private final PrometheusMeterRegistry registry;
 
