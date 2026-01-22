@@ -53,8 +53,8 @@ class GtfsRtMetricsExporterTest {
     @BeforeEach
     void setUp() {
         meterRegistry = new SimpleMeterRegistry();
-        config = new AppConfig(8080, List.of(TEST_URL), POLL_INTERVAL, CLIENT_TIMEOUT, MQTT_CLIENT_ID, CONNECTION_TIMEOUT,
-                KEEP_ALIVE_INTERVAL, List.of());
+        config = new AppConfig(8080, List.of(TEST_URL), POLL_INTERVAL, CLIENT_TIMEOUT, MQTT_CLIENT_ID,
+                CONNECTION_TIMEOUT, KEEP_ALIVE_INTERVAL, List.of());
         metricsRegistry = new GtfsRtMetricsRegistry(meterRegistry, config.gtfsRtUrls());
     }
 
