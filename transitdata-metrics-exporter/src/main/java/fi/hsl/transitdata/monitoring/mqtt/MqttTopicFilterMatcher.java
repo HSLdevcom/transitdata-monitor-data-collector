@@ -1,16 +1,18 @@
 package fi.hsl.transitdata.monitoring.mqtt;
 
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MqttTopicFilterMatcher {
 
-    public static Optional<String> findMatchingTopicFilter(String topic, String[] topicFilters) {
+    public static List<String> findMatchingTopicFilters(String topic, String[] topicFilters) {
+        var matches = new ArrayList<String>();
         for (var topicFilter : topicFilters) {
             if (topicMatches(topic, topicFilter)) {
-                return Optional.of(topicFilter);
+                matches.add(topicFilter);
             }
         }
-        return Optional.empty();
+        return matches;
     }
 
     private static boolean topicMatches(String topic, String topicFilter) {

@@ -18,7 +18,7 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 
-import static fi.hsl.transitdata.monitoring.mqtt.MqttTopicFilterMatcher.findMatchingTopicFilter;
+import static fi.hsl.transitdata.monitoring.mqtt.MqttTopicFilterMatcher.findMatchingTopicFilters;
 
 public class MqttTopicMonitorListener implements MqttCallbackExtended, Closeable {
 
@@ -98,15 +98,22 @@ public class MqttTopicMonitorListener implements MqttCallbackExtended, Closeable
 
     @Override
     public void messageArrived(String topic, MqttMessage message) {
-        Counter.builder("mqtt_messages_received_total")
-                .description("Total MQTT messages received")
-                .tag("broker", brokerAddress)
-                .tag("topic_filter", findMatchingTopicFilter(topic, topicFilters).orElse("unknown"))
-                .tag("qos", String.valueOf(message.getQos()))
-                .tag("is_duplicate", String.valueOf(message.isDuplicate()))
-                .tag("is_retained", String.valueOf(message.isRetained()))
-                .register(registry)
-                .increment();
+        var matchingFilters = findMatchingTopicFilters(topic, topicFilters);
+        if (matchingFilters.isEmpty()) {
+            matchingFilters = List.of("unknown");
+        }
+
+        for (var topicFilter : matchingFilters) {
+            Counter.builder("mqtt_messages_received_total")
+                    .description("Total MQTT messages received")
+                    .tag("broker", brokerAddress)
+                    .tag("topic_filter", topicFilter)
+                    .tag("qos", String.valueOf(message.getQos()))
+                    .tag("is_duplicate", String.valueOf(message.isDuplicate()))
+                    .tag("is_retained", String.valueOf(message.isRetained()))
+                    .register(registry)
+                    .increment();
+        }
     }
 
     @Override

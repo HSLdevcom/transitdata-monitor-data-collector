@@ -2,6 +2,7 @@ package fi.hsl.transitdata.monitoring.mqtt;
 
 import org.junit.jupiter.api.Test;
 
+import static fi.hsl.transitdata.monitoring.mqtt.MqttTopicFilterMatcher.findMatchingTopicFilters;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class MqttTopicFilterMatcherTest {
@@ -13,10 +14,10 @@ class MqttTopicFilterMatcherTest {
         var filters = new String[]{"gtfsrt/v2/fi/hsl/tu"};
 
         // when
-        var result = MqttTopicFilterMatcher.findMatchingTopicFilter(topic, filters);
+        var result = findMatchingTopicFilters(topic, filters);
 
         // then
-        assertThat(result).hasValue("gtfsrt/v2/fi/hsl/tu");
+        assertThat(result).containsExactly("gtfsrt/v2/fi/hsl/tu");
     }
 
     @Test
@@ -26,10 +27,10 @@ class MqttTopicFilterMatcherTest {
         var filters = new String[]{"/hfp/v2/journey/#"};
 
         // when
-        var result = MqttTopicFilterMatcher.findMatchingTopicFilter(topic, filters);
+        var result = findMatchingTopicFilters(topic, filters);
 
         // then
-        assertThat(result).hasValue("/hfp/v2/journey/#");
+        assertThat(result).containsExactly("/hfp/v2/journey/#");
     }
 
     @Test
@@ -39,10 +40,10 @@ class MqttTopicFilterMatcherTest {
         var filters = new String[]{"/hfp/v2/journey/ongoing/apc/#"};
 
         // when
-        var result = MqttTopicFilterMatcher.findMatchingTopicFilter(topic, filters);
+        var result = findMatchingTopicFilters(topic, filters);
 
         // then
-        assertThat(result).hasValue("/hfp/v2/journey/ongoing/apc/#");
+        assertThat(result).containsExactly("/hfp/v2/journey/ongoing/apc/#");
     }
 
     @Test
@@ -52,10 +53,10 @@ class MqttTopicFilterMatcherTest {
         var filters = new String[]{"/hfp/v2/journey/ongoing/+/ferry/#"};
 
         // when
-        var result = MqttTopicFilterMatcher.findMatchingTopicFilter(topic, filters);
+        var result = findMatchingTopicFilters(topic, filters);
 
         // then
-        assertThat(result).hasValue("/hfp/v2/journey/ongoing/+/ferry/#");
+        assertThat(result).containsExactly("/hfp/v2/journey/ongoing/+/ferry/#");
     }
 
     @Test
@@ -65,10 +66,10 @@ class MqttTopicFilterMatcherTest {
         var filters = new String[]{"/hfp/v2/journey/ongoing/+/metro/#"};
 
         // when
-        var result = MqttTopicFilterMatcher.findMatchingTopicFilter(topic, filters);
+        var result = findMatchingTopicFilters(topic, filters);
 
         // then
-        assertThat(result).hasValue("/hfp/v2/journey/ongoing/+/metro/#");
+        assertThat(result).containsExactly("/hfp/v2/journey/ongoing/+/metro/#");
     }
 
     @Test
@@ -78,10 +79,10 @@ class MqttTopicFilterMatcherTest {
         var filters = new String[]{"/hfp/v2/journey/ongoing/+/+/+/+/7280/#"};
 
         // when
-        var result = MqttTopicFilterMatcher.findMatchingTopicFilter(topic, filters);
+        var result = findMatchingTopicFilters(topic, filters);
 
         // then
-        assertThat(result).hasValue("/hfp/v2/journey/ongoing/+/+/+/+/7280/#");
+        assertThat(result).containsExactly("/hfp/v2/journey/ongoing/+/+/+/+/7280/#");
     }
 
     @Test
@@ -91,10 +92,10 @@ class MqttTopicFilterMatcherTest {
         var filters = new String[]{"gtfsrt/dev/fi/hsl/vp/#"};
 
         // when
-        var result = MqttTopicFilterMatcher.findMatchingTopicFilter(topic, filters);
+        var result = findMatchingTopicFilters(topic, filters);
 
         // then
-        assertThat(result).hasValue("gtfsrt/dev/fi/hsl/vp/#");
+        assertThat(result).containsExactly("gtfsrt/dev/fi/hsl/vp/#");
     }
 
     @Test
@@ -104,24 +105,24 @@ class MqttTopicFilterMatcherTest {
         var filters = new String[]{"gtfsrt/dev/fi/hsl/sa"};
 
         // when
-        var result = MqttTopicFilterMatcher.findMatchingTopicFilter(topic, filters);
+        var result = findMatchingTopicFilters(topic, filters);
 
         // then
-        assertThat(result).hasValue("gtfsrt/dev/fi/hsl/sa");
+        assertThat(result).containsExactly("gtfsrt/dev/fi/hsl/sa");
     }
 
     @Test
-    void shouldReturnFirstMatchingFilterFromMultiple() {
-        // given
+    void shouldReturnAllMatchingFilters() {
+        // given - ferry topic matches both the general journey filter and the specific ferry filter
         var topic = "/hfp/v2/journey/ongoing/vp/ferry/1019";
         var filters = new String[]{"/hfp/v2/journey/#", "/hfp/v2/journey/ongoing/+/ferry/#",
                 "/hfp/v2/journey/ongoing/+/metro/#"};
 
         // when
-        var result = MqttTopicFilterMatcher.findMatchingTopicFilter(topic, filters);
+        var result = findMatchingTopicFilters(topic, filters);
 
-        // then
-        assertThat(result).hasValue("/hfp/v2/journey/#");
+        // then - should return both matching filters, not just the first one
+        assertThat(result).containsExactly("/hfp/v2/journey/#", "/hfp/v2/journey/ongoing/+/ferry/#");
     }
 
     @Test
@@ -131,7 +132,7 @@ class MqttTopicFilterMatcherTest {
         var filters = new String[]{"/hfp/v2/journey/ongoing/+/ferry/#"};
 
         // when
-        var result = MqttTopicFilterMatcher.findMatchingTopicFilter(topic, filters);
+        var result = findMatchingTopicFilters(topic, filters);
 
         // then
         assertThat(result).isEmpty();
@@ -144,7 +145,7 @@ class MqttTopicFilterMatcherTest {
         var filters = new String[]{"/hfp/v2/journey/ongoing/+/ferry/#"};
 
         // when
-        var result = MqttTopicFilterMatcher.findMatchingTopicFilter(topic, filters);
+        var result = findMatchingTopicFilters(topic, filters);
 
         // then
         assertThat(result).isEmpty();
@@ -157,7 +158,7 @@ class MqttTopicFilterMatcherTest {
         var filters = new String[]{"/hfp/v2/journey/ongoing/+/+/+/+/7280/#"};
 
         // when
-        var result = MqttTopicFilterMatcher.findMatchingTopicFilter(topic, filters);
+        var result = findMatchingTopicFilters(topic, filters);
 
         // then
         assertThat(result).isEmpty();
@@ -170,7 +171,7 @@ class MqttTopicFilterMatcherTest {
         var filters = new String[]{"gtfsrt/dev/fi/hsl/tu"};
 
         // when
-        var result = MqttTopicFilterMatcher.findMatchingTopicFilter(topic, filters);
+        var result = findMatchingTopicFilters(topic, filters);
 
         // then
         assertThat(result).isEmpty();
@@ -183,7 +184,7 @@ class MqttTopicFilterMatcherTest {
         var filters = new String[]{};
 
         // when
-        var result = MqttTopicFilterMatcher.findMatchingTopicFilter(topic, filters);
+        var result = findMatchingTopicFilters(topic, filters);
 
         // then
         assertThat(result).isEmpty();
@@ -196,37 +197,37 @@ class MqttTopicFilterMatcherTest {
         var filters = new String[]{"/hfp/v2/journey/ongoing/+/bus/#"};
 
         // when
-        var result = MqttTopicFilterMatcher.findMatchingTopicFilter(topic, filters);
+        var result = findMatchingTopicFilters(topic, filters);
 
         // then
-        assertThat(result).hasValue("/hfp/v2/journey/ongoing/+/bus/#");
+        assertThat(result).containsExactly("/hfp/v2/journey/ongoing/+/bus/#");
     }
 
     @Test
-    void shouldMatchApcTopicSpecifically() {
-        // given
+    void shouldMatchAllApplicableFiltersForApcTopic() {
+        // given - APC topic matches both specific APC filter and general journey filter
         var topic = "/hfp/v2/journey/ongoing/apc/bus/0055/01234/2107/1/Tapiola";
         var filters = new String[]{"/hfp/v2/journey/ongoing/apc/#", "/hfp/v2/journey/#"};
 
         // when
-        var result = MqttTopicFilterMatcher.findMatchingTopicFilter(topic, filters);
+        var result = findMatchingTopicFilters(topic, filters);
 
         // then
-        assertThat(result).hasValue("/hfp/v2/journey/ongoing/apc/#");
+        assertThat(result).containsExactly("/hfp/v2/journey/ongoing/apc/#", "/hfp/v2/journey/#");
     }
 
     @Test
-    void shouldMatchComplexBusTopic() {
-        // given
+    void shouldMatchOnlyApplicableFiltersForBusTopic() {
+        // given - bus topic matches journey filter but not APC or ferry filters
         var topic = "/hfp/v2/journey/ongoing/vp/bus/0022/01216/2107/1/Tapiola/11:06/2265203/5/60;24/18/80/57";
         var filters = new String[]{"/hfp/v2/journey/ongoing/apc/#", "/hfp/v2/journey/ongoing/+/ferry/#",
                 "/hfp/v2/journey/#"};
 
         // when
-        var result = MqttTopicFilterMatcher.findMatchingTopicFilter(topic, filters);
+        var result = findMatchingTopicFilters(topic, filters);
 
         // then
-        assertThat(result).hasValue("/hfp/v2/journey/#");
+        assertThat(result).containsExactly("/hfp/v2/journey/#");
     }
 
     @Test
@@ -236,7 +237,7 @@ class MqttTopicFilterMatcherTest {
         var filters = new String[]{"/hfp/v2/journey/ongoing/vp/#"};
 
         // when
-        var result = MqttTopicFilterMatcher.findMatchingTopicFilter(topic, filters);
+        var result = findMatchingTopicFilters(topic, filters);
 
         // then
         assertThat(result).isEmpty();
@@ -249,9 +250,23 @@ class MqttTopicFilterMatcherTest {
         var filters = new String[]{"#"};
 
         // when
-        var result = MqttTopicFilterMatcher.findMatchingTopicFilter(topic, filters);
+        var result = findMatchingTopicFilters(topic, filters);
 
         // then
-        assertThat(result).hasValue("#");
+        assertThat(result).containsExactly("#");
+    }
+
+    @Test
+    void shouldMatchRoute7280WithBothGeneralAndSpecificFilters() {
+        // given - route 7280 topic matches both the general journey filter and the specific route filter
+        var topic = "/hfp/v2/journey/ongoing/vp/bus/0022/01216/7280/1/Tapiola/11:06/2265203";
+        var filters = new String[]{"/hfp/v2/journey/#", "/hfp/v2/journey/ongoing/+/ferry/#",
+                "/hfp/v2/journey/ongoing/+/metro/#", "/hfp/v2/journey/ongoing/+/+/+/+/7280/#"};
+
+        // when
+        var result = findMatchingTopicFilters(topic, filters);
+
+        // then
+        assertThat(result).containsExactly("/hfp/v2/journey/#", "/hfp/v2/journey/ongoing/+/+/+/+/7280/#");
     }
 }
