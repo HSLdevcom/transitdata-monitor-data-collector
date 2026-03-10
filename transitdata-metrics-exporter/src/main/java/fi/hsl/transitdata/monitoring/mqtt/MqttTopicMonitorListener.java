@@ -73,17 +73,19 @@ public class MqttTopicMonitorListener implements MqttCallbackExtended, Closeable
             MeterRegistry registry) {
         var counters = new HashMap<String, Counter>();
         for (var topicFilter : topicFilters) {
-            counters.put(topicFilter, Counter.builder("mqtt_messages_received_total")
-                    .description("Total MQTT messages received")
-                    .tag("broker", brokerAddress)
-                    .tag("topic_filter", topicFilter)
-                    .register(registry));
+            counters.put(topicFilter,
+                    Counter.builder("mqtt_messages_received_total")
+                            .description("Total MQTT messages received")
+                            .tag("broker", brokerAddress)
+                            .tag("topic_filter", topicFilter)
+                            .register(registry));
         }
-        counters.put("unknown", Counter.builder("mqtt_messages_received_total")
-                .description("Total MQTT messages received")
-                .tag("broker", brokerAddress)
-                .tag("topic_filter", "unknown")
-                .register(registry));
+        counters.put("unknown",
+                Counter.builder("mqtt_messages_received_total")
+                        .description("Total MQTT messages received")
+                        .tag("broker", brokerAddress)
+                        .tag("topic_filter", "unknown")
+                        .register(registry));
 
         return Map.copyOf(counters);
     }
