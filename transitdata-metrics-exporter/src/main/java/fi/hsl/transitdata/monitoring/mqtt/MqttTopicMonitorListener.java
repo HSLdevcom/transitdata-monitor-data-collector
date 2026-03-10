@@ -16,7 +16,9 @@ import org.slf4j.LoggerFactory;
 import java.io.Closeable;
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static fi.hsl.transitdata.monitoring.mqtt.MqttTopicFilterMatcher.findMatchingTopicFilters;
 
@@ -39,13 +41,13 @@ public class MqttTopicMonitorListener implements MqttCallbackExtended, Closeable
     private final MqttConnectOptions connectOptions;
     private final String brokerAddress;
     private final String[] topicFilters;
-    private final MeterRegistry registry;
+    private final Map<String, Counter> messageCounters;
+    private final Counter connectionLostCounter;
 
     public MqttTopicMonitorListener(String brokerAddress, String clientId, List<String> topicFilters,
             Duration connectionTimeout, Duration keepAliveInterval, MeterRegistry registry) {
         this.brokerAddress = brokerAddress;
         this.topicFilters = topicFilters.toArray(new String[0]);
-        this.registry = registry;
         this.connectOptions = createConnectOptions(connectionTimeout, keepAliveInterval);
 
         try {
@@ -59,6 +61,31 @@ public class MqttTopicMonitorListener implements MqttCallbackExtended, Closeable
                 .description("MQTT connection status (1 = connected, 0 = disconnected)")
                 .tag("broker", brokerAddress)
                 .register(registry);
+
+        this.messageCounters = registerMessageCounters(brokerAddress, topicFilters, registry);
+        this.connectionLostCounter = Counter.builder("mqtt_connection_lost")
+                .description("MQTT connection lost")
+                .tag("broker", brokerAddress)
+                .register(registry);
+    }
+
+    private static Map<String, Counter> registerMessageCounters(String brokerAddress, List<String> topicFilters,
+            MeterRegistry registry) {
+        var counters = new HashMap<String, Counter>();
+        for (var topicFilter : topicFilters) {
+            counters.put(topicFilter, Counter.builder("mqtt_messages_received_total")
+                    .description("Total MQTT messages received")
+                    .tag("broker", brokerAddress)
+                    .tag("topic_filter", topicFilter)
+                    .register(registry));
+        }
+        counters.put("unknown", Counter.builder("mqtt_messages_received_total")
+                .description("Total MQTT messages received")
+                .tag("broker", brokerAddress)
+                .tag("topic_filter", "unknown")
+                .register(registry));
+
+        return Map.copyOf(counters);
     }
 
     public void start() {
@@ -88,31 +115,19 @@ public class MqttTopicMonitorListener implements MqttCallbackExtended, Closeable
     @Override
     public void connectionLost(Throwable cause) {
         LOG.warn("Connection lost from {}: {}", brokerAddress, cause == null ? "unknown" : cause.getMessage(), cause);
-
-        Counter.builder("mqtt_connection_lost")
-                .description("MQTT connection lost")
-                .tag("broker", brokerAddress)
-                .register(registry)
-                .increment();
+        connectionLostCounter.increment();
     }
 
     @Override
     public void messageArrived(String topic, MqttMessage message) {
         var matchingFilters = findMatchingTopicFilters(topic, topicFilters);
         if (matchingFilters.isEmpty()) {
-            matchingFilters = List.of("unknown");
+            messageCounters.get("unknown").increment();
+            return;
         }
 
         for (var topicFilter : matchingFilters) {
-            Counter.builder("mqtt_messages_received_total")
-                    .description("Total MQTT messages received")
-                    .tag("broker", brokerAddress)
-                    .tag("topic_filter", topicFilter)
-                    .tag("qos", String.valueOf(message.getQos()))
-                    .tag("is_duplicate", String.valueOf(message.isDuplicate()))
-                    .tag("is_retained", String.valueOf(message.isRetained()))
-                    .register(registry)
-                    .increment();
+            messageCounters.get(topicFilter).increment();
         }
     }
 

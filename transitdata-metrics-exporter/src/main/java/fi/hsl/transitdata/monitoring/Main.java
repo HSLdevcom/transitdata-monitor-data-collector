@@ -8,6 +8,7 @@ import fi.hsl.transitdata.monitoring.mqtt.MqttTopicMonitorListener;
 import fi.hsl.transitdata.monitoring.web.HealthEndpoint;
 import fi.hsl.transitdata.monitoring.web.LivenessEndpoint;
 import fi.hsl.transitdata.monitoring.web.MetricsEndpoint;
+import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
 import io.micrometer.prometheusmetrics.PrometheusConfig;
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry;
 import org.slf4j.Logger;
@@ -33,6 +34,7 @@ public class Main {
             var config = AppConfig.parseFrom("application.conf");
             var httpServer = HttpServer.create(new InetSocketAddress(config.port()), 0);
             var registry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
+            new JvmMemoryMetrics().bindTo(registry);
 
             var healthEndpoint = new HealthEndpoint();
             httpServer.createContext("/liveness", new LivenessEndpoint());
