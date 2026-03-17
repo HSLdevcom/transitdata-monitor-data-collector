@@ -30,6 +30,7 @@ class AppConfigTest {
                             topicFilters = ["/hfp/v2/journey/#"]
                         }
                     ]
+                    qos = 0
                 }
                 """;
 
@@ -63,6 +64,7 @@ class AppConfigTest {
                     clientId = "test-client"
                     connectionTimeout = "PT15S"
                     keepAliveInterval = "PT20S"
+                    qos = 0
                 }
                 """;
 
@@ -87,6 +89,7 @@ class AppConfigTest {
                     clientId = "test-client"
                     connectionTimeout = "PT15S"
                     keepAliveInterval = "PT20S"
+                    qos = 0
                 }
                 """;
 
@@ -112,6 +115,7 @@ class AppConfigTest {
                     clientId = "test-client"
                     connectionTimeout = "PT15S"
                     keepAliveInterval = "PT20S"
+                    qos = 0
                     brokers = [
                         {
                             address = "tcp://mqtt1.example.com:1883"
@@ -204,6 +208,7 @@ class AppConfigTest {
                     clientId = "test-client"
                     connectionTimeout = "PT15S"
                     keepAliveInterval = "PT20S"
+                    qos = 0
                 }
                 """;
 
