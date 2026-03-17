@@ -12,7 +12,7 @@ import static com.typesafe.config.ConfigValueType.LIST;
 
 public record AppConfig(int port, List<String> gtfsRtUrls, Duration gtfsRtPollInterval, Duration gtfsRtClientTimeout,
         String mqttClientId, Duration mqttConnectionTimeout, Duration mqttKeepAliveInterval,
-        List<MqttBrokerConfig> mqttBrokers) {
+        int mqttQos, List<MqttBrokerConfig> mqttBrokers) {
 
     public static AppConfig parseFrom(String configurationFile) {
         var config = ConfigFactory.parseResources(configurationFile).resolve();
@@ -28,10 +28,12 @@ public record AppConfig(int port, List<String> gtfsRtUrls, Duration gtfsRtPollIn
         var mqttClientId = getRequired(config, "mqtt.clientId", config::getString);
         var mqttConnectionTimeout = Duration.parse(getRequired(config, "mqtt.connectionTimeout", config::getString));
         var mqttKeepAliveInterval = Duration.parse(getRequired(config, "mqtt.keepAliveInterval", config::getString));
+        var mqttQos = getRequired(config, "mqtt.qos", config::getInt);
+        validateMqttQos(mqttQos);
         var mqttBrokers = parseMqttBrokers(config);
 
         return new AppConfig(port, gtfsRtUrls, gtfsRtPollInterval, gtfsRtClientTimeout, mqttClientId,
-                mqttConnectionTimeout, mqttKeepAliveInterval, mqttBrokers);
+                mqttConnectionTimeout, mqttKeepAliveInterval, mqttQos, mqttBrokers);
     }
 
     private static List<String> parseGtfsRtUrls(Config config) {
@@ -66,6 +68,12 @@ public record AppConfig(int port, List<String> gtfsRtUrls, Duration gtfsRtPollIn
                 .map(brokerConfig -> new MqttBrokerConfig(brokerConfig.getString("address"),
                         brokerConfig.getStringList("topicFilters")))
                 .toList();
+    }
+
+    private static void validateMqttQos(int qos) {
+        if (qos < 0 || qos > 2) {
+            throw new IllegalArgumentException("mqtt.qos must be 0, 1, or 2, but was " + qos);
+        }
     }
 
     private static void validateGtfsRtIntervals(Duration pollInterval, Duration clientTimeout) {

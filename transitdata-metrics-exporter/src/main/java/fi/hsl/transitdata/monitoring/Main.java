@@ -78,7 +78,7 @@ public class Main {
                 .stream()
                 .map(broker -> new MqttTopicMonitorListener(broker.address(), config.mqttClientId(),
                         broker.topicFilters(), config.mqttConnectionTimeout(), config.mqttKeepAliveInterval(),
-                        registry))
+                        config.mqttQos(), registry))
                 .toList();
 
         return new MqttListeners(listeners);
