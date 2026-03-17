@@ -26,7 +26,6 @@ public class MqttTopicMonitorListener implements MqttCallbackExtended, Closeable
 
     private static final Logger LOG = LoggerFactory.getLogger(MqttTopicMonitorListener.class);
 
-    private static final int QOS = 2;
     /**
      * The protocol maximum is 2**16 - 1 for QoS 1 and 2 (-1 for the forbidden Packet Identifier 0).
      * We get from the HFP topic alone around 110_000 messages per minute at peak time.
@@ -41,13 +40,15 @@ public class MqttTopicMonitorListener implements MqttCallbackExtended, Closeable
     private final MqttConnectOptions connectOptions;
     private final String brokerAddress;
     private final String[] topicFilters;
+    private final int qos;
     private final Map<String, Counter> messageCounters;
     private final Counter connectionLostCounter;
 
     public MqttTopicMonitorListener(String brokerAddress, String clientId, List<String> topicFilters,
-            Duration connectionTimeout, Duration keepAliveInterval, MeterRegistry registry) {
+            Duration connectionTimeout, Duration keepAliveInterval, int qos, MeterRegistry registry) {
         this.brokerAddress = brokerAddress;
         this.topicFilters = topicFilters.toArray(new String[0]);
+        this.qos = qos;
         this.connectOptions = createConnectOptions(connectionTimeout, keepAliveInterval);
 
         try {
@@ -103,11 +104,11 @@ public class MqttTopicMonitorListener implements MqttCallbackExtended, Closeable
     public void connectComplete(boolean reconnect, String serverURI) {
         LOG.info("{} to {}, subscribing to topics", reconnect ? "Reconnected" : "Connected", serverURI);
 
-        var qos = new int[topicFilters.length];
-        Arrays.fill(qos, QOS);
+        var qosArray = new int[topicFilters.length];
+        Arrays.fill(qosArray, qos);
 
         try {
-            client.subscribe(topicFilters, qos);
+            client.subscribe(topicFilters, qosArray);
             LOG.info("Subscribed to {} topic filter(s) on {}", topicFilters.length, serverURI);
         } catch (MqttException e) {
             LOG.error("Subscription failed for {}: {}", serverURI, e.getMessage(), e);
