@@ -11,8 +11,8 @@ import java.util.function.Function;
 import static com.typesafe.config.ConfigValueType.LIST;
 
 public record AppConfig(int port, List<String> gtfsRtUrls, Duration gtfsRtPollInterval, Duration gtfsRtClientTimeout,
-        String mqttClientId, Duration mqttConnectionTimeout, Duration mqttKeepAliveInterval,
-        int mqttQos, List<MqttBrokerConfig> mqttBrokers) {
+        String mqttClientId, Duration mqttConnectionTimeout, Duration mqttKeepAliveInterval, int mqttQos,
+        List<MqttBrokerConfig> mqttBrokers) {
 
     public static AppConfig parseFrom(String configurationFile) {
         var config = ConfigFactory.parseResources(configurationFile).resolve();
